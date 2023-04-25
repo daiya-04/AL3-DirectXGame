@@ -5,6 +5,7 @@
 #include "input.h"
 #include "Matrix44.h"
 #include "PlayerBullet.h"
+#include <list>
 
 class Player {
 private:
@@ -17,9 +18,12 @@ private:
 	//キーボードの入力
 	Input* input_ = nullptr;
 	//弾
-	PlayerBullet* bullet_ = nullptr;
+	std::list<PlayerBullet*> bullets_;
 
 public:
+
+	~Player();
+
 	//初期化
 	void Initialize(Model* model,uint32_t textureHandle);
 
