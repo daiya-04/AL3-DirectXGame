@@ -4,6 +4,7 @@
 #include "ViewProjection.h"
 #include "input.h"
 #include "Matrix44.h"
+#include "PlayerBullet.h"
 
 class Player {
 private:
@@ -15,6 +16,8 @@ private:
 	uint32_t textureHandle_ = 0u;
 	//キーボードの入力
 	Input* input_ = nullptr;
+	//弾
+	PlayerBullet* bullet_ = nullptr;
 
 public:
 	//初期化
@@ -25,5 +28,6 @@ public:
 
 	//描画
 	void Draw(ViewProjection viewProjection);
-
+	//攻撃
+	void Attack();
 };
