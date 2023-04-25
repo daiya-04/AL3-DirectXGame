@@ -2,6 +2,8 @@
 #include "Model.h"
 #include "WorldTransform.h"
 #include "ViewProjection.h"
+#include "input.h"
+#include "Matrix44.h"
 
 class Player {
 private:
@@ -11,7 +13,8 @@ private:
 	Model* model_ = nullptr;
 	//テクスチャハンドル
 	uint32_t textureHandle_ = 0u;
-
+	//キーボードの入力
+	Input* input_ = nullptr;
 
 public:
 	//初期化
