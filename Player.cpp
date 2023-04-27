@@ -18,6 +18,14 @@ void Player::Initialize(Model* model, uint32_t textureHandle) {
 
 void Player::Update() {
 	
+	bullets_.remove_if([](PlayerBullet* bullet) {
+		if (bullet->isDead()) {
+			delete bullet;
+			return true;
+		}
+		return false;
+	});
+
 	//キャラクターの移動ベクトル
 	Vector3 move = {0, 0, 0};
 	//キャラクターの移動速さ
@@ -82,9 +90,15 @@ void Player::Draw(ViewProjection viewProjection) {
 void Player::Attack() {
 	if (input_->TriggerKey(DIK_SPACE)) {
 
+		//弾の速度
+		const float kBulletSpeed = 1.0f;
+		Vector3 velocity(0, 0, kBulletSpeed);
+
+		velocity = TransformNormal(velocity, worldTransForm_.matWorld_);
+
 		//弾の生成と初期化
 		PlayerBullet* newBullet = new PlayerBullet();
-		newBullet->Initialize(model_, worldTransForm_.translation_);
+		newBullet->Initialize(model_, worldTransForm_.translation_,velocity);
 		//弾を登録する
 		bullets_.push_back(newBullet);
 
