@@ -12,7 +12,7 @@ void Player::Initialize(Model* model, uint32_t textureHandle) {
 	assert(model); 
 	model_ = model;
 	textureHandle_ = textureHandle;
-	worldTransForm_.Initialize();
+	worldTransform_.Initialize();
 	input_=Input::GetInstance();
 }
 
@@ -45,9 +45,9 @@ void Player::Update() {
 	}
 	//プレイヤー旋回
 	if (input_->PushKey(DIK_A)) {
-		worldTransForm_.rotation_.y -= kRotSpeed;
+		worldTransform_.rotation_.y -= kRotSpeed;
 	} else if (input_->PushKey(DIK_D)) {
-		worldTransForm_.rotation_.y += kRotSpeed;
+		worldTransform_.rotation_.y += kRotSpeed;
 	}
 	//プレイヤー攻撃
 	Attack();
@@ -57,30 +57,30 @@ void Player::Update() {
 		bullet->Update();
 	}
 
-	worldTransForm_.translation_ = Add(worldTransForm_.translation_, move);
+	worldTransform_.translation_ = Add(worldTransform_.translation_, move);
 
 	const float kMoveLimitX = 34;
 	const float kMoveLimitY = 18;
 	//移動の制限
-	worldTransForm_.translation_.x = max(worldTransForm_.translation_.x, -kMoveLimitX);
-	worldTransForm_.translation_.x = min(worldTransForm_.translation_.x, +kMoveLimitX);
-	worldTransForm_.translation_.y = max(worldTransForm_.translation_.y, -kMoveLimitY);
-	worldTransForm_.translation_.y = min(worldTransForm_.translation_.y, +kMoveLimitY);
+	worldTransform_.translation_.x = max(worldTransform_.translation_.x, -kMoveLimitX);
+	worldTransform_.translation_.x = min(worldTransform_.translation_.x, +kMoveLimitX);
+	worldTransform_.translation_.y = max(worldTransform_.translation_.y, -kMoveLimitY);
+	worldTransform_.translation_.y = min(worldTransform_.translation_.y, +kMoveLimitY);
 
-	worldTransForm_.UpdateMatrix();
+	worldTransform_.UpdateMatrix();
 
 	
 	ImGui::Begin("debug");
 	ImGui::Text(
-	    "%.02f %.02f %.02f\n%.02f", worldTransForm_.translation_.x, worldTransForm_.translation_.y,
-	    worldTransForm_.translation_.z, worldTransForm_.rotation_.y);
+	    "%.02f %.02f %.02f\n%.02f", worldTransform_.translation_.x, worldTransform_.translation_.y,
+	    worldTransform_.translation_.z, worldTransform_.rotation_.y);
 	ImGui::End();
 
 
 }
 
 void Player::Draw(ViewProjection viewProjection) {
-	model_->Draw(worldTransForm_, viewProjection, textureHandle_);
+	model_->Draw(worldTransform_, viewProjection, textureHandle_);
 
 	for (PlayerBullet* bullet : bullets_) {
 		bullet->Draw(viewProjection);
@@ -94,11 +94,11 @@ void Player::Attack() {
 		const float kBulletSpeed = 1.0f;
 		Vector3 velocity(0, 0, kBulletSpeed);
 
-		velocity = TransformNormal(velocity, worldTransForm_.matWorld_);
+		velocity = TransformNormal(velocity, worldTransform_.matWorld_);
 
 		//弾の生成と初期化
 		PlayerBullet* newBullet = new PlayerBullet();
-		newBullet->Initialize(model_, worldTransForm_.translation_,velocity);
+		newBullet->Initialize(model_, worldTransform_.translation_,velocity);
 		//弾を登録する
 		bullets_.push_back(newBullet);
 

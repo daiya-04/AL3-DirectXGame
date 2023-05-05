@@ -9,6 +9,7 @@ GameScene::~GameScene() {
 	delete model_;
 	delete debugCamera_;
 	delete player_;
+	delete enemy_;
 }
 
 void GameScene::Initialize() {
@@ -17,13 +18,20 @@ void GameScene::Initialize() {
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
 
-	textureHandle_ = TextureManager::Load("mario.jpg");
+	PlayertextureHandle_ = TextureManager::Load("mario.jpg");
+	EnemyTextureHandle_ = TextureManager::Load("Monster.png");
+
 	model_ = Model::Create();
 	viewProjection_.Initialize();
 	//自キャラの生成
 	player_ = new Player();
 	//自キャラの初期化
-	player_->Initialize(model_,textureHandle_);
+	player_->Initialize(model_,PlayertextureHandle_);
+
+	//敵キャラの生成
+	enemy_ = new Enemy();
+	//敵キャラの初期化
+	enemy_->Initialize(model_, EnemyTextureHandle_);
 
 	debugCamera_ = new DebugCamera(1280, 720);
 
@@ -33,7 +41,7 @@ void GameScene::Initialize() {
 
 void GameScene::Update() {
 	player_->Update();
-	
+	enemy_->Update();
 
 #ifdef _DEBUG
 	if (input_->TriggerKey(DIK_RETURN)) {
@@ -83,6 +91,7 @@ void GameScene::Draw() {
 	/// </summary>
 	 
 	player_->Draw(viewProjection_);
+	enemy_->Draw(viewProjection_);
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();

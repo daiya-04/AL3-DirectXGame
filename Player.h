@@ -10,7 +10,7 @@
 class Player {
 private:
 	//ワールド変換データ
-	WorldTransform worldTransForm_;
+	WorldTransform worldTransform_;
 	//モデル
 	Model* model_ = nullptr;
 	//テクスチャハンドル
