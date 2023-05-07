@@ -69,13 +69,14 @@ void Player::Update() {
 
 	worldTransform_.UpdateMatrix();
 
-	
-	ImGui::Begin("debug");
+#ifdef _DEBUG
+	ImGui::Begin("Player");
 	ImGui::Text(
-	    "%.02f %.02f %.02f\n%.02f", worldTransform_.translation_.x, worldTransform_.translation_.y,
-	    worldTransform_.translation_.z, worldTransform_.rotation_.y);
+	    "Position\n%.02f %.02f %.02f\nRatate\n%.02f", worldTransform_.translation_.x,
+	    worldTransform_.translation_.y, worldTransform_.translation_.z,
+	    worldTransform_.rotation_.y);
 	ImGui::End();
-
+#endif
 
 }
 
