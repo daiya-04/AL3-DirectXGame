@@ -32,7 +32,6 @@ void Enemy::Update() {
 		    break;
 	}
 
-	worldTransform_.translation_ = Add(worldTransform_.translation_, {0.0f, 0.0f, -0.3f});
 	worldTransform_.UpdateMatrix();
 
 #ifdef _DEBUG
@@ -57,7 +56,7 @@ void Enemy::Draw(ViewProjection viewProjection) {
 
 void Enemy::ApproachUpdate() {
 
-	worldTransform_.translation_ = Add(worldTransform_.translation_, {0.0f, 0.0f, -0.1f});
+	worldTransform_.translation_ = Add(worldTransform_.translation_, {0.0f, 0.0f, -0.3f});
 
 	if (worldTransform_.translation_.z < 0.0f) {
 		phase_ = Phase::Leave;
@@ -66,5 +65,5 @@ void Enemy::ApproachUpdate() {
 
 void Enemy::LeaveUpdate() {
 
-	worldTransform_.translation_ = Add(worldTransform_.translation_, {-0.07f, 0.08f, -0.01f});
+	worldTransform_.translation_ = Add(worldTransform_.translation_, {-0.07f, 0.08f, -0.2f});
 }
