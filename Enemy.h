@@ -19,6 +19,8 @@ private:
 
 	Phase phase_ = Phase::Approach;
 
+	static void (Enemy::*spFuncTable[])();
+
 public:
 
 	void Initialize(Model* model, uint32_t textureHandle);

@@ -3,6 +3,11 @@
 #include "Matrix44.h"
 #include "ImGuiManager.h"
 
+void (Enemy::*Enemy::spFuncTable[])() = {
+    &Enemy::ApproachUpdate,
+    &Enemy::LeaveUpdate
+};
+
 void Enemy::Initialize(Model* model, uint32_t textureHandle) { 
 	assert(model); 
 	model_ = model;
@@ -22,7 +27,7 @@ void Enemy::Update() {
 		
 	}
 
-	switch (phase_) {
+	/*switch (phase_) {
 		case Phase::Approach:
 	    default:
 		    ApproachUpdate();
@@ -30,9 +35,10 @@ void Enemy::Update() {
 		case Phase::Leave:
 			LeaveUpdate();
 		    break;
-	}
+	}*/
 
-	worldTransform_.translation_ = Add(worldTransform_.translation_, {0.0f, 0.0f, -0.3f});
+	(this->*spFuncTable[static_cast<size_t>(phase_)])();
+	
 	worldTransform_.UpdateMatrix();
 
 #ifdef _DEBUG
@@ -57,7 +63,7 @@ void Enemy::Draw(ViewProjection viewProjection) {
 
 void Enemy::ApproachUpdate() {
 
-	worldTransform_.translation_ = Add(worldTransform_.translation_, {0.0f, 0.0f, -0.1f});
+	worldTransform_.translation_ = Add(worldTransform_.translation_, {0.0f, 0.0f, -0.5f});
 
 	if (worldTransform_.translation_.z < 0.0f) {
 		phase_ = Phase::Leave;
@@ -66,5 +72,5 @@ void Enemy::ApproachUpdate() {
 
 void Enemy::LeaveUpdate() {
 
-	worldTransform_.translation_ = Add(worldTransform_.translation_, {-0.07f, 0.08f, -0.01f});
+	worldTransform_.translation_ = Add(worldTransform_.translation_, {-0.07f, 0.08f, -0.2f});
 }
