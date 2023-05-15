@@ -3,26 +3,49 @@
 #include "Matrix44.h"
 #include "ImGuiManager.h"
 
+Enemy::~Enemy() {
+
+	for (EnemyBullet* bullet : bullets_) {
+		delete bullet;
+	}
+}
+
+void (Enemy::*Enemy::spFuncTable[])() = {
+	&Enemy::ApproachUpdate, 
+	&Enemy::LeaveUpdate
+};
+
 void Enemy::Initialize(Model* model, uint32_t textureHandle) { 
 	assert(model); 
 	model_ = model;
 	textureHandle_ = textureHandle;
 	worldTransform_.Initialize();
-	worldTransform_.translation_ = {0.0f, 2.0f, 40.0f};
+	worldTransform_.translation_ = {30.0f, 2.0f, 40.0f};
 	input_ = Input::GetInstance();
+
+	
+	ApproachInitialize();
 }
 
 void Enemy::Update() {
 
+	bullets_.remove_if([](EnemyBullet* bullet) {
+		if (bullet->isDead()) {
+			delete bullet;
+			return true;
+		}
+		return false;
+	});
+
 	if (input_->TriggerKey(DIK_R)) {
-		worldTransform_.translation_ = {0.0f, 2.0f, 40.0f};
+		worldTransform_.translation_ = {30.0f, 2.0f, 40.0f};
 		if (phase_ != Phase::Approach) {
 			phase_ = Phase::Approach;
 		}
 		
 	}
 
-	switch (phase_) {
+	/*switch (phase_) {
 		case Phase::Approach:
 	    default:
 		    ApproachUpdate();
@@ -30,6 +53,12 @@ void Enemy::Update() {
 		case Phase::Leave:
 			LeaveUpdate();
 		    break;
+	}*/
+
+	(this->*spFuncTable[static_cast<size_t>(phase_)])();
+
+	for (EnemyBullet* bullet : bullets_) {
+		bullet->Update();
 	}
 
 	worldTransform_.UpdateMatrix();
@@ -50,16 +79,44 @@ void Enemy::Update() {
 }
 
 void Enemy::Draw(ViewProjection viewProjection) {
-
 	model_->Draw(worldTransform_, viewProjection, textureHandle_);
+
+	for (EnemyBullet* bullet : bullets_) {
+		    bullet->Draw(viewProjection);
+	}
+}
+
+
+void Enemy::Fire() {
+	
+	const float kBulletSpeed = 1.0f;
+	Vector3 velocity(0, 0, kBulletSpeed);
+
+	velocity = TransformNormal(velocity, worldTransform_.matWorld_);
+
+	EnemyBullet* newBullet = new EnemyBullet();
+	newBullet->Initialize(model_, worldTransform_.translation_, velocity);
+
+	bullets_.push_back(newBullet);
+}
+
+void Enemy::ApproachInitialize() { 
+	fireTimer = kFireInterval;
 }
 
 void Enemy::ApproachUpdate() {
 
 	worldTransform_.translation_ = Add(worldTransform_.translation_, {0.0f, 0.0f, -0.3f});
-
+	
 	if (worldTransform_.translation_.z < 0.0f) {
 		phase_ = Phase::Leave;
+	}
+
+	fireTimer--;
+	if (fireTimer == 0) {
+	
+		Fire();
+		fireTimer = kFireInterval;
 	}
 }
 
