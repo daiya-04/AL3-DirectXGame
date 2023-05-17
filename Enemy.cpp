@@ -1,4 +1,5 @@
 #include "Enemy.h"
+#include "Player.h"
 #include<assert.h>
 #include "Matrix44.h"
 #include "ImGuiManager.h"
@@ -22,7 +23,7 @@ void Enemy::Initialize(Model* model, uint32_t textureHandle) {
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = {30.0f, 2.0f, 40.0f};
 	input_ = Input::GetInstance();
-
+	
 	
 	ApproachInitialize();
 }
@@ -89,10 +90,14 @@ void Enemy::Draw(ViewProjection viewProjection) {
 
 void Enemy::Fire() {
 	
-	const float kBulletSpeed = 1.0f;
-	Vector3 velocity(0, 0, kBulletSpeed);
+	assert(player_);
 
-	velocity = TransformNormal(velocity, worldTransform_.matWorld_);
+	const float kBulletSpeed = 1.0f;
+	
+	Vector3 worldPlayerPos = player_->GetWorldPosition();
+	Vector3 worldEnemyPos = GetWorldPosition();
+	Vector3 length = Sub(worldEnemyPos, worldPlayerPos);
+	Vector3 velocity = Mul(kBulletSpeed,Normalize(length));
 
 	EnemyBullet* newBullet = new EnemyBullet();
 	newBullet->Initialize(model_, worldTransform_.translation_, velocity);
@@ -100,13 +105,15 @@ void Enemy::Fire() {
 	bullets_.push_back(newBullet);
 }
 
+
+
 void Enemy::ApproachInitialize() { 
 	fireTimer = kFireInterval;
 }
 
 void Enemy::ApproachUpdate() {
 
-	worldTransform_.translation_ = Add(worldTransform_.translation_, {0.0f, 0.0f, -0.3f});
+	worldTransform_.translation_ = Add(worldTransform_.translation_, {0.0f, 0.0f, -0.01f});
 	
 	if (worldTransform_.translation_.z < 0.0f) {
 		phase_ = Phase::Leave;
@@ -123,4 +130,15 @@ void Enemy::ApproachUpdate() {
 void Enemy::LeaveUpdate() {
 
 	worldTransform_.translation_ = Add(worldTransform_.translation_, {-0.07f, 0.08f, -0.2f});
+}
+
+Vector3 Enemy::GetWorldPosition() {
+
+	Vector3 WorldPos;
+
+	WorldPos.x = worldTransform_.translation_.x;
+	WorldPos.y = worldTransform_.translation_.y;
+	WorldPos.z = worldTransform_.translation_.z;
+
+	return WorldPos;
 }

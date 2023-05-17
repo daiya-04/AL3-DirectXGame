@@ -30,3 +30,4 @@ void EnemyBullet::Draw(const ViewProjection& viewProjection) {
 
 	model_->Draw(worldtransform_, viewProjection, textureHandle_);
 }
+

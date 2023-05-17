@@ -7,6 +7,8 @@
 #include "PlayerBullet.h"
 #include <list>
 
+
+
 class Player {
 private:
 	//ワールド変換データ
@@ -24,14 +26,12 @@ public:
 
 	~Player();
 
-	//初期化
+	
 	void Initialize(Model* model,uint32_t textureHandle);
-
-	//更新
 	void Update();
-
-	//描画
 	void Draw(ViewProjection viewProjection);
-	//攻撃
 	void Attack();
+
+	Vector3 GetWorldPosition();
+	
 };

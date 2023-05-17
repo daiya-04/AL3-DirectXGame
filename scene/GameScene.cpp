@@ -23,15 +23,20 @@ void GameScene::Initialize() {
 
 	model_ = Model::Create();
 	viewProjection_.Initialize();
+
+	
+
 	//自キャラの生成
 	player_ = new Player();
 	//自キャラの初期化
 	player_->Initialize(model_,PlayertextureHandle_);
 
-	//敵キャラの生成
+	// 敵キャラの生成
 	enemy_ = new Enemy();
-	//敵キャラの初期化
+	// 敵キャラの初期化
 	enemy_->Initialize(model_, EnemyTextureHandle_);
+	// 敵キャラに自キャラのアドレスを渡す
+	enemy_->SetPlayer(player_);
 
 	debugCamera_ = new DebugCamera(1280, 720);
 

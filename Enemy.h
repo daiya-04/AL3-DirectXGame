@@ -5,6 +5,7 @@
 #include "EnemyBullet.h"
 #include <list>
 
+class Player;
 
 class Enemy {
 private:
@@ -20,6 +21,7 @@ private:
 	Input* input_ = nullptr;
 	std::list<EnemyBullet*> bullets_;
 	uint32_t fireTimer = 0;
+	Player* player_ = nullptr;
 
 	Phase phase_ = Phase::Approach;
 
@@ -35,8 +37,16 @@ public:
 	void Update();
 	void Draw(ViewProjection viewProjection);
 	void Fire();
+	
 
 	void ApproachInitialize();
 	void ApproachUpdate();
 	void LeaveUpdate();
+
+	Vector3 GetWorldPosition();
+
+	void SetPlayer(Player* player) { player_ = player; }
+	
 };
+
+

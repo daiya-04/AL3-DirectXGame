@@ -14,6 +14,7 @@ void Player::Initialize(Model* model, uint32_t textureHandle) {
 	textureHandle_ = textureHandle;
 	worldTransform_.Initialize();
 	input_=Input::GetInstance();
+	
 }
 
 void Player::Update() {
@@ -105,4 +106,15 @@ void Player::Attack() {
 
 	} 
 
+}
+
+Vector3 Player::GetWorldPosition() {
+
+	Vector3 WorldPos;
+
+	WorldPos.x = worldTransform_.translation_.x;
+	WorldPos.y = worldTransform_.translation_.y;
+	WorldPos.z = worldTransform_.translation_.z;
+
+	return WorldPos;
 }

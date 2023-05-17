@@ -26,4 +26,6 @@ public:
 	void Draw(const ViewProjection& viewProjection);
 
 	bool isDead() const { return isDead_; }
+
+	
 };
