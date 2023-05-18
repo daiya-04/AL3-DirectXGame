@@ -9,7 +9,7 @@
 class EnemyBullet {
 private:
 
-	WorldTransform worldtransform_;
+	WorldTransform worldTransform_;
 	Model* model_ = nullptr;
 	uint32_t textureHandle_ = 0u;
 	Vector3 velocity_;
@@ -26,7 +26,10 @@ public:
 
 	void Draw(const ViewProjection& viewProjection);
 
+	void OnCollision();
+
 	bool isDead() const { return isDead_; }
+	Vector3 GetWorldPosition();
 
 
 };

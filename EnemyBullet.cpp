@@ -9,17 +9,17 @@ void EnemyBullet::Initialize(Model* model, const Vector3& position,const Vector3
 
 	textureHandle_ = TextureManager::Load("Red.png");
 
-	worldtransform_.Initialize();
-	worldtransform_.translation_ = position;
+	worldTransform_.Initialize();
+	worldTransform_.translation_ = position;
 
 	velocity_ = velocity;
 }
 
 void EnemyBullet::Update() {
 
-	worldtransform_.translation_ = Sub(worldtransform_.translation_,velocity_);
+	worldTransform_.translation_ = Sub(worldTransform_.translation_,velocity_);
 
-	worldtransform_.UpdateMatrix();
+	worldTransform_.UpdateMatrix();
 
 	if (--deathTimer_ <= 0) {
 		isDead_ = true;
@@ -28,6 +28,20 @@ void EnemyBullet::Update() {
 
 void EnemyBullet::Draw(const ViewProjection& viewProjection) {
 
-	model_->Draw(worldtransform_, viewProjection, textureHandle_);
+	model_->Draw(worldTransform_, viewProjection, textureHandle_);
 }
 
+void EnemyBullet::OnCollision() { 
+	isDead_ = true;
+}
+
+Vector3 EnemyBullet::GetWorldPosition() {
+
+	Vector3 WorldPos;
+
+	WorldPos.x = worldTransform_.translation_.x;
+	WorldPos.y = worldTransform_.translation_.y;
+	WorldPos.z = worldTransform_.translation_.z;
+
+	return WorldPos;
+}

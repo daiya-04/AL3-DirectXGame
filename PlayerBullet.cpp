@@ -8,19 +8,19 @@ void PlayerBullet::Initialize(Model* model, const Vector3& position, const Vecto
 
 	textureHandle_ = TextureManager::Load("Black.png");
 
-	worldTransForm_.Initialize();
-	worldTransForm_.translation_ = position;
+	worldTransform_.Initialize();
+	worldTransform_.translation_ = position;
 
-	worldTransForm_.UpdateMatrix();
+	worldTransform_.UpdateMatrix();
 
 	velocity_ = velocity;
 }
 
 void PlayerBullet::Update() {
 
-	worldTransForm_.translation_ = Add(worldTransForm_.translation_, velocity_);
+	worldTransform_.translation_ = Add(worldTransform_.translation_, velocity_);
 
-	worldTransForm_.UpdateMatrix();
+	worldTransform_.UpdateMatrix();
 
 	if (--deathTimer_ <= 0) {
 		isDead_ = true;
@@ -29,5 +29,20 @@ void PlayerBullet::Update() {
 }
 
 void PlayerBullet::Draw(const ViewProjection& viewProjection) { 
-	model_->Draw(worldTransForm_, viewProjection, textureHandle_);
+	model_->Draw(worldTransform_, viewProjection, textureHandle_);
+}
+
+void PlayerBullet::OnCollision() {
+	isDead_ = true;
+}
+
+Vector3 PlayerBullet::GetWorldPosition() {
+
+	Vector3 WorldPos;
+
+	WorldPos.x = worldTransform_.translation_.x;
+	WorldPos.y = worldTransform_.translation_.y;
+	WorldPos.z = worldTransform_.translation_.z;
+
+	return WorldPos;
 }

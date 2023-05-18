@@ -31,7 +31,8 @@ public:
 	void Update();
 	void Draw(ViewProjection viewProjection);
 	void Attack();
+	void OnCollision();
 
 	Vector3 GetWorldPosition();
-	
+	const std::list<PlayerBullet*>& GetBullets() { return bullets_; }
 };

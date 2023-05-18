@@ -37,7 +37,7 @@ public:
 	void Update();
 	void Draw(ViewProjection viewProjection);
 	void Fire();
-	
+	void OnCollision();
 
 	void ApproachInitialize();
 	void ApproachUpdate();
@@ -46,7 +46,7 @@ public:
 	Vector3 GetWorldPosition();
 
 	void SetPlayer(Player* player) { player_ = player; }
-	
+	const std::list<EnemyBullet*>& GetBullets() { return bullets_; }
 };
 
 

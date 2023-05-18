@@ -47,6 +47,7 @@ void GameScene::Initialize() {
 void GameScene::Update() {
 	player_->Update();
 	enemy_->Update();
+	CheckAllCollision();
 
 #ifdef _DEBUG
 	if (input_->TriggerKey(DIK_RETURN)) {
@@ -114,4 +115,58 @@ void GameScene::Draw() {
 	Sprite::PostDraw();
 
 #pragma endregion
+}
+
+void GameScene::CheckAllCollision() {
+
+	//判定対象AとBの座標
+	Vector3 posA, posB;
+
+	//自弾リストの取得
+	const std::list<PlayerBullet*>& playerBullets = player_->GetBullets();
+	//敵弾リストの取得
+	const std::list<EnemyBullet*>& enemyBullets = enemy_->GetBullets();
+
+	#pragma region 自キャラと敵弾の当たり判定
+	//自キャラの座標
+	posA = player_->GetWorldPosition();
+
+	for (EnemyBullet* bullet : enemyBullets) {
+		//敵弾の座標
+		posB = bullet->GetWorldPosition();
+		float length = Length(Sub(posA, posB));
+		if (length<=2) {
+			player_->OnCollision();
+			bullet->OnCollision();
+		}
+	}
+	#pragma endregion
+
+	#pragma region 自弾と敵キャラの当たり判定
+	posA = enemy_->GetWorldPosition();
+
+	for (PlayerBullet* bullet : playerBullets) {
+		//自キャラの座標
+		posB = bullet->GetWorldPosition();
+		float length = Length(Sub(posA, posB));
+		if (length <= 2) {
+			enemy_->OnCollision();
+			bullet->OnCollision();
+		}
+	}
+	#pragma endregion
+
+	#pragma region 自弾と敵弾の当たり判定
+	for (PlayerBullet* bulletA : playerBullets) {
+		for (EnemyBullet* bulletB : enemyBullets) {
+			posA = bulletA->GetWorldPosition();
+			posB = bulletB->GetWorldPosition();
+			float length = Length(Sub(posA, posB));
+			if (length <= 2) {
+				bulletA->OnCollision();
+				bulletB->OnCollision();
+			}
+		}
+	}
+	#pragma endregion
 }

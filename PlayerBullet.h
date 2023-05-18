@@ -8,7 +8,7 @@
 class PlayerBullet {
 private:
 
-	WorldTransform worldTransForm_;
+	WorldTransform worldTransform_;
 	Model* model_ = nullptr;
 	uint32_t textureHandle_ = 0u;
 	Vector3 velocity_;
@@ -25,7 +25,9 @@ public:
 	//描画
 	void Draw(const ViewProjection& viewProjection);
 
-	bool isDead() const { return isDead_; }
+	void OnCollision();
 
+	bool isDead() const { return isDead_; }
+	Vector3 GetWorldPosition();
 	
 };
