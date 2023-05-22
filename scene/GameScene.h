@@ -11,6 +11,7 @@
 #include "Player.h"
 #include "DebugCamera.h"
 #include "Enemy.h"
+#include "Skydome.h"
 
 /// <summary>
 /// ゲームシーン
@@ -54,8 +55,11 @@ private: // メンバ変数
 	Audio* audio_ = nullptr;
 
 	Model* model_ = nullptr;
+	Model* modelSkydome_ = nullptr;
+
 	Player* player_ = nullptr;
 	Enemy* enemy_ = nullptr;
+	Skydome* skydome_ = nullptr;
 
 	uint32_t PlayertextureHandle_ = 0;
 	uint32_t EnemyTextureHandle_ = 0;

@@ -7,9 +7,11 @@ GameScene::GameScene() {}
 
 GameScene::~GameScene() {
 	delete model_;
+	delete modelSkydome_;
 	delete debugCamera_;
 	delete player_;
 	delete enemy_;
+	delete skydome_;
 }
 
 void GameScene::Initialize() {
@@ -22,6 +24,8 @@ void GameScene::Initialize() {
 	EnemyTextureHandle_ = TextureManager::Load("Monster.png");
 
 	model_ = Model::Create();
+	modelSkydome_ = Model::CreateFromOBJ("skydome", true);
+	
 	viewProjection_.Initialize();
 
 	
@@ -38,6 +42,11 @@ void GameScene::Initialize() {
 	// 敵キャラに自キャラのアドレスを渡す
 	enemy_->SetPlayer(player_);
 
+	//スカイドームの生成
+	skydome_ = new Skydome();
+	//スカイドームの初期化
+	skydome_->Initialize(modelSkydome_);
+
 	debugCamera_ = new DebugCamera(1280, 720);
 
 	AxisIndicator::GetInstance()->SetVisible(true);
@@ -47,6 +56,7 @@ void GameScene::Initialize() {
 void GameScene::Update() {
 	player_->Update();
 	enemy_->Update();
+	skydome_->Update();
 	CheckAllCollision();
 
 #ifdef _DEBUG
@@ -98,6 +108,7 @@ void GameScene::Draw() {
 	 
 	player_->Draw(viewProjection_);
 	enemy_->Draw(viewProjection_);
+	skydome_->Draw(viewProjection_);
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
