@@ -13,6 +13,7 @@ void Player::Initialize(Model* model, uint32_t textureHandle) {
 	model_ = model;
 	textureHandle_ = textureHandle;
 	worldTransform_.Initialize();
+	worldTransform_.translation_ = {0.0f, 0.0f, 30.0f};
 	input_=Input::GetInstance();
 	
 }
@@ -28,7 +29,7 @@ void Player::Update() {
 	});
 
 	//キャラクターの移動ベクトル
-	Vector3 move = {0, 0, 0};
+	Vector3 move = {};
 	//キャラクターの移動速さ
 	const float kCharacterSpeed = 0.2f;
 	const float kRotSpeed = 0.02f;
@@ -100,7 +101,7 @@ void Player::Attack() {
 
 		//弾の生成と初期化
 		PlayerBullet* newBullet = new PlayerBullet();
-		newBullet->Initialize(model_, worldTransform_.translation_,velocity);
+		newBullet->Initialize(model_, GetWorldPosition(), velocity);
 		//弾を登録する
 		bullets_.push_back(newBullet);
 
@@ -116,9 +117,13 @@ Vector3 Player::GetWorldPosition() {
 
 	Vector3 WorldPos;
 
-	WorldPos.x = worldTransform_.translation_.x;
-	WorldPos.y = worldTransform_.translation_.y;
-	WorldPos.z = worldTransform_.translation_.z;
+	WorldPos.x = worldTransform_.matWorld_.m[3][0];
+	WorldPos.y = worldTransform_.matWorld_.m[3][1];
+	WorldPos.z = worldTransform_.matWorld_.m[3][2];
 
 	return WorldPos;
+}
+
+void Player::SetParent(const WorldTransform* parent) { 
+	worldTransform_.parent_ = parent;
 }

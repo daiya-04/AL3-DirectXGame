@@ -35,4 +35,5 @@ public:
 
 	Vector3 GetWorldPosition();
 	const std::list<PlayerBullet*>& GetBullets() { return bullets_; }
+	void SetParent(const WorldTransform* parent);
 };

@@ -12,6 +12,7 @@
 #include "DebugCamera.h"
 #include "Enemy.h"
 #include "Skydome.h"
+#include "RailCamera.h"
 
 /// <summary>
 /// ゲームシーン
@@ -60,9 +61,12 @@ private: // メンバ変数
 	Player* player_ = nullptr;
 	Enemy* enemy_ = nullptr;
 	Skydome* skydome_ = nullptr;
+	RailCamera* railCamera_ = nullptr;
 
 	uint32_t PlayertextureHandle_ = 0;
 	uint32_t EnemyTextureHandle_ = 0;
+	
+	
 	ViewProjection viewProjection_;
 
 	DebugCamera* debugCamera_ = nullptr;

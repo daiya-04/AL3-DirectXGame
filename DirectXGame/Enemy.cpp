@@ -138,9 +138,9 @@ Vector3 Enemy::GetWorldPosition() {
 
 	Vector3 WorldPos;
 
-	WorldPos.x = worldTransform_.translation_.x;
-	WorldPos.y = worldTransform_.translation_.y;
-	WorldPos.z = worldTransform_.translation_.z;
+	WorldPos.x = worldTransform_.matWorld_.m[3][0];
+	WorldPos.y = worldTransform_.matWorld_.m[3][1];
+	WorldPos.z = worldTransform_.matWorld_.m[3][2];
 
 	return WorldPos;
 }
