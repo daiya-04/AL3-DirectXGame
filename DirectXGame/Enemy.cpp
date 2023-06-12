@@ -3,12 +3,12 @@
 #include<assert.h>
 #include "Matrix44.h"
 #include "ImGuiManager.h"
+#include "GameScene.h"
 
-Enemy::~Enemy() {
 
-	for (EnemyBullet* bullet : bullets_) {
-		delete bullet;
-	}
+
+Enemy::~Enemy() { 
+
 }
 
 void (Enemy::*Enemy::spFuncTable[])() = {
@@ -16,12 +16,12 @@ void (Enemy::*Enemy::spFuncTable[])() = {
 	&Enemy::LeaveUpdate
 };
 
-void Enemy::Initialize(Model* model, uint32_t textureHandle) { 
+void Enemy::Initialize(Model* model, uint32_t textureHandle, Vector3 position) { 
 	assert(model); 
 	model_ = model;
 	textureHandle_ = textureHandle;
 	worldTransform_.Initialize();
-	worldTransform_.translation_ = {30.0f, 2.0f, 40.0f};
+	worldTransform_.translation_ = position;
 	input_ = Input::GetInstance();
 	
 	
@@ -30,21 +30,9 @@ void Enemy::Initialize(Model* model, uint32_t textureHandle) {
 
 void Enemy::Update() {
 
-	bullets_.remove_if([](EnemyBullet* bullet) {
-		if (bullet->isDead()) {
-			delete bullet;
-			return true;
-		}
-		return false;
-	});
+	
 
-	if (input_->TriggerKey(DIK_R)) {
-		worldTransform_.translation_ = {30.0f, 2.0f, 40.0f};
-		if (phase_ != Phase::Approach) {
-			phase_ = Phase::Approach;
-		}
-		
-	}
+	
 
 	/*switch (phase_) {
 		case Phase::Approach:
@@ -58,9 +46,7 @@ void Enemy::Update() {
 
 	(this->*spFuncTable[static_cast<size_t>(phase_)])();
 
-	for (EnemyBullet* bullet : bullets_) {
-		bullet->Update();
-	}
+	
 
 	worldTransform_.UpdateMatrix();
 
@@ -82,9 +68,7 @@ void Enemy::Update() {
 void Enemy::Draw(ViewProjection viewProjection) {
 	model_->Draw(worldTransform_, viewProjection, textureHandle_);
 
-	for (EnemyBullet* bullet : bullets_) {
-		    bullet->Draw(viewProjection);
-	}
+	
 }
 
 
@@ -102,12 +86,10 @@ void Enemy::Fire() {
 	EnemyBullet* newBullet = new EnemyBullet();
 	newBullet->Initialize(model_, worldTransform_.translation_, velocity);
 
-	bullets_.push_back(newBullet);
+	gameScene_->AddEnemyBullet(newBullet);
 }
 
-void Enemy::OnCollision() {
-
-}
+void Enemy::OnCollision() { isDead_ = true; }
 
 void Enemy::ApproachInitialize() { 
 	fireTimer = kFireInterval;
@@ -115,7 +97,7 @@ void Enemy::ApproachInitialize() {
 
 void Enemy::ApproachUpdate() {
 
-	worldTransform_.translation_ = Add(worldTransform_.translation_, {0.0f, 0.0f, -0.01f});
+	worldTransform_.translation_ = Add(worldTransform_.translation_, {0.0f, 0.0f, -0.1f});
 	
 	if (worldTransform_.translation_.z < 0.0f) {
 		phase_ = Phase::Leave;
@@ -124,7 +106,7 @@ void Enemy::ApproachUpdate() {
 	fireTimer--;
 	if (fireTimer == 0) {
 	
-		Fire();
+		//Fire();
 		fireTimer = kFireInterval;
 	}
 }

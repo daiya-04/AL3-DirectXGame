@@ -1,11 +1,10 @@
 ﻿#include "Player.h"
 #include "ImGuiManager.h"
+#include "GameScene.h"
 #include <assert.h>
 
 Player::~Player() {
-	for (PlayerBullet* bullet : bullets_) {
-		delete bullet;
-	}
+	
 }
 
 void Player::Initialize(Model* model, uint32_t textureHandle) {
@@ -20,13 +19,7 @@ void Player::Initialize(Model* model, uint32_t textureHandle) {
 
 void Player::Update() {
 	
-	bullets_.remove_if([](PlayerBullet* bullet) {
-		if (bullet->isDead()) {
-			delete bullet;
-			return true;
-		}
-		return false;
-	});
+	
 
 	//キャラクターの移動ベクトル
 	Vector3 move = {};
@@ -54,10 +47,7 @@ void Player::Update() {
 	//プレイヤー攻撃
 	Attack();
 
-	//弾の更新
-	for (PlayerBullet* bullet : bullets_) {
-		bullet->Update();
-	}
+	
 
 	worldTransform_.translation_ = Add(worldTransform_.translation_, move);
 
@@ -85,9 +75,7 @@ void Player::Update() {
 void Player::Draw(ViewProjection viewProjection) {
 	model_->Draw(worldTransform_, viewProjection, textureHandle_);
 
-	for (PlayerBullet* bullet : bullets_) {
-		bullet->Draw(viewProjection);
-	}
+	
 }
 
 void Player::Attack() {
@@ -103,7 +91,7 @@ void Player::Attack() {
 		PlayerBullet* newBullet = new PlayerBullet();
 		newBullet->Initialize(model_, GetWorldPosition(), velocity);
 		//弾を登録する
-		bullets_.push_back(newBullet);
+		gameScene_->AddPlayerBullet(newBullet);
 
 	} 
 

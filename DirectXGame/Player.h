@@ -4,11 +4,10 @@
 #include "ViewProjection.h"
 #include "input.h"
 #include "Matrix44.h"
-#include "PlayerBullet.h"
 #include <list>
 
 
-
+class GameScene;
 class Player {
 private:
 	//ワールド変換データ
@@ -19,8 +18,9 @@ private:
 	uint32_t textureHandle_ = 0u;
 	//キーボードの入力
 	Input* input_ = nullptr;
-	//弾
-	std::list<PlayerBullet*> bullets_;
+
+	GameScene* gameScene_ = nullptr;
+	
 
 public:
 
@@ -34,6 +34,8 @@ public:
 	void OnCollision();
 
 	Vector3 GetWorldPosition();
-	const std::list<PlayerBullet*>& GetBullets() { return bullets_; }
+
+
 	void SetParent(const WorldTransform* parent);
+	void SetGameScene(GameScene* gameScene) { gameScene_ = gameScene; }
 };
