@@ -34,6 +34,7 @@ void GameScene::Initialize() {
 
 	PlayertextureHandle_ = TextureManager::Load("mario.jpg");
 	EnemyTextureHandle_ = TextureManager::Load("Monster.png");
+	TextureManager::Load("Reticle.png");
 
 	model_ = Model::Create();
 	modelSkydome_ = Model::CreateFromOBJ("skydome", true);
@@ -101,7 +102,7 @@ void GameScene::Update() {
 		return false;
 	});
 
-	player_->Update();
+	player_->Update(viewProjection_);
 	// 弾の更新
 	for (PlayerBullet* bullet : playerBullets_) {
 		bullet->Update();
@@ -191,6 +192,8 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに前景スプライトの描画処理を追加できる
 	/// </summary>
+
+	player_->DrawUI();
 
 	// スプライト描画後処理
 	Sprite::PostDraw();

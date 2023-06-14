@@ -3,8 +3,8 @@
 #include "GameScene.h"
 #include <assert.h>
 
-Player::~Player() {
-	
+Player::~Player() { 
+	delete sprite2DReticle;
 }
 
 void Player::Initialize(Model* model, uint32_t textureHandle) {
@@ -14,10 +14,17 @@ void Player::Initialize(Model* model, uint32_t textureHandle) {
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = {0.0f, 0.0f, 30.0f};
 	input_=Input::GetInstance();
-	
+	worldTransform3Dreticle_.Initialize();
+
+	uint32_t textureReticle = TextureManager::Load("Reticle.png");
+	sprite2DReticle = Sprite::Create(
+	    textureReticle,
+	    {640.0f,360.0f},
+	    {1.0f, 1.0f, 1.0f, 1.0f}, {0.5f, 0.5f}
+	);
 }
 
-void Player::Update() {
+void Player::Update(ViewProjection viewProjection) {
 	
 	
 
@@ -26,6 +33,7 @@ void Player::Update() {
 	//キャラクターの移動速さ
 	const float kCharacterSpeed = 0.2f;
 	const float kRotSpeed = 0.02f;
+	
 
 	//プレイヤー移動
 	if (input_->PushKey(DIK_LEFT)) {
@@ -47,8 +55,6 @@ void Player::Update() {
 	//プレイヤー攻撃
 	Attack();
 
-	
-
 	worldTransform_.translation_ = Add(worldTransform_.translation_, move);
 
 	const float kMoveLimitX = 34;
@@ -59,7 +65,40 @@ void Player::Update() {
 	worldTransform_.translation_.y = max(worldTransform_.translation_.y, -kMoveLimitY);
 	worldTransform_.translation_.y = min(worldTransform_.translation_.y, +kMoveLimitY);
 
+	
+
 	worldTransform_.UpdateMatrix();
+
+	
+
+	// 自機から3Dレティクルへの距離
+	const float kDistancePlayerTo3Dreticle = 50.0f;
+	Vector3 offset = {0.0f, 0.0f, 1.0f};
+	offset = TransformNormal(offset, worldTransform_.matWorld_);
+	offset = Mul(kDistancePlayerTo3Dreticle, Normalize(offset));
+	worldTransform3Dreticle_.translation_ = {
+	    GetWorldPosition().x + offset.x, GetWorldPosition().y + offset.y,
+	    GetWorldPosition().z + offset.z
+	};
+
+	worldTransform3Dreticle_.UpdateMatrix();
+
+	Vector3 positionReticle = {
+	    worldTransform3Dreticle_.matWorld_.m[3][0],
+		worldTransform3Dreticle_.matWorld_.m[3][1],
+	    worldTransform3Dreticle_.matWorld_.m[3][2]
+	};
+
+	Matrix4x4 viewportMatrix =
+	    MakeViewportMatrix(0.0f, 0.0f, WinApp::kWindowWidth, WinApp::kWindowHeight);
+
+	Matrix4x4 VPVMatrix =
+	    Multiply(Multiply(viewProjection.matView, viewProjection.matProjection), viewportMatrix);
+
+	positionReticle = Transform(positionReticle, VPVMatrix);
+
+	sprite2DReticle->SetPosition(Vector2(positionReticle.x, positionReticle.y));
+
 
 #ifdef _DEBUG
 	ImGui::Begin("Player");
@@ -75,7 +114,11 @@ void Player::Update() {
 void Player::Draw(ViewProjection viewProjection) {
 	model_->Draw(worldTransform_, viewProjection, textureHandle_);
 
-	
+	//model_->Draw(worldTransform3Dreticle_, viewProjection);
+}
+
+void Player::DrawUI() {
+	sprite2DReticle->Draw();
 }
 
 void Player::Attack() {
@@ -85,7 +128,14 @@ void Player::Attack() {
 		const float kBulletSpeed = 1.0f;
 		Vector3 velocity(0, 0, kBulletSpeed);
 
-		velocity = TransformNormal(velocity, worldTransform_.matWorld_);
+		Vector3 WorldPos3DRetivle = {
+		    worldTransform3Dreticle_.matWorld_.m[3][0],
+		    worldTransform3Dreticle_.matWorld_.m[3][1],
+		    worldTransform3Dreticle_.matWorld_.m[3][2],
+		};
+
+		velocity = Sub(WorldPos3DRetivle, GetWorldPosition());
+		velocity = Mul(kBulletSpeed,Normalize(velocity));
 
 		//弾の生成と初期化
 		PlayerBullet* newBullet = new PlayerBullet();
@@ -111,6 +161,8 @@ Vector3 Player::GetWorldPosition() {
 
 	return WorldPos;
 }
+
+
 
 void Player::SetParent(const WorldTransform* parent) { 
 	worldTransform_.parent_ = parent;

@@ -5,6 +5,7 @@
 #include "input.h"
 #include "Matrix44.h"
 #include <list>
+#include "Sprite.h"
 
 
 class GameScene;
@@ -20,6 +21,12 @@ private:
 	Input* input_ = nullptr;
 
 	GameScene* gameScene_ = nullptr;
+
+	//3Dレティクル用ワールドトランスフォーム
+	WorldTransform worldTransform3Dreticle_;
+
+	//2Dレティクル用スプライト
+	Sprite* sprite2DReticle = nullptr;
 	
 
 public:
@@ -28,13 +35,13 @@ public:
 
 	
 	void Initialize(Model* model,uint32_t textureHandle);
-	void Update();
+	void Update(ViewProjection viewProjection);
 	void Draw(ViewProjection viewProjection);
+	void DrawUI();
 	void Attack();
 	void OnCollision();
 
 	Vector3 GetWorldPosition();
-
 
 	void SetParent(const WorldTransform* parent);
 	void SetGameScene(GameScene* gameScene) { gameScene_ = gameScene; }
