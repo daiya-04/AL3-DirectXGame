@@ -106,7 +106,7 @@ void Enemy::ApproachUpdate() {
 	fireTimer--;
 	if (fireTimer == 0) {
 	
-		//Fire();
+		Fire();
 		fireTimer = kFireInterval;
 	}
 }

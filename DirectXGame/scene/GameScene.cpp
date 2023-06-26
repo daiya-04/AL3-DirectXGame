@@ -77,6 +77,10 @@ void GameScene::Initialize() {
 
 void GameScene::Update() {
 
+	
+
+	
+
 	UpdateEnemyPopCommand();
 	enemyBullets_.remove_if([](EnemyBullet* bullet) {
 		if (bullet->isDead()) {
@@ -84,6 +88,7 @@ void GameScene::Update() {
 			return true;
 		}
 		return false;
+		
 	});
 
 	playerBullets_.remove_if([](PlayerBullet* bullet) {

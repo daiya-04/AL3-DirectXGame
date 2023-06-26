@@ -26,17 +26,18 @@ void Player::Initialize(Model* model, uint32_t textureHandle) {
 
 void Player::Update(ViewProjection viewProjection) {
 	
-	
+	Vector2 spritePos = sprite2DReticle->GetPosition();
+	XINPUT_STATE joyState;
 
 	//キャラクターの移動ベクトル
 	Vector3 move = {};
 	//キャラクターの移動速さ
-	const float kCharacterSpeed = 0.2f;
+	const float kCharacterSpeed = 0.5f;
 	const float kRotSpeed = 0.02f;
 	
 
 	//プレイヤー移動
-	if (input_->PushKey(DIK_LEFT)) {
+	/*if (input_->PushKey(DIK_LEFT)) {
 		move.x -= kCharacterSpeed;
 	} else if (input_->PushKey(DIK_RIGHT)) {
 		move.x += kCharacterSpeed;
@@ -45,6 +46,11 @@ void Player::Update(ViewProjection viewProjection) {
 		move.y += kCharacterSpeed;
 	} else if (input_->PushKey(DIK_DOWN)) {
 		move.y -= kCharacterSpeed;
+	}*/
+
+	if (Input::GetInstance()->GetJoystickState(0, joyState)) {
+		move.x += (float)joyState.Gamepad.sThumbLX / SHRT_MAX * kCharacterSpeed;
+		move.y += (float)joyState.Gamepad.sThumbLY / SHRT_MAX * kCharacterSpeed;
 	}
 	//プレイヤー旋回
 	if (input_->PushKey(DIK_A)) {
@@ -52,13 +58,22 @@ void Player::Update(ViewProjection viewProjection) {
 	} else if (input_->PushKey(DIK_D)) {
 		worldTransform_.rotation_.y += kRotSpeed;
 	}
+	//レティクル移動
+	if (Input::GetInstance()->GetJoystickState(0, joyState)) {
+	
+		spritePos.x += (float)joyState.Gamepad.sThumbRX / SHRT_MAX * 10.0f;
+		spritePos.y -= (float)joyState.Gamepad.sThumbRY / SHRT_MAX * 10.0f;
+
+		sprite2DReticle->SetPosition(spritePos);
+	}
+
 	//プレイヤー攻撃
 	Attack();
 
 	worldTransform_.translation_ = Add(worldTransform_.translation_, move);
 
-	const float kMoveLimitX = 34;
-	const float kMoveLimitY = 18;
+	const float kMoveLimitX = 20;
+	const float kMoveLimitY = 11;
 	//移動の制限
 	worldTransform_.translation_.x = max(worldTransform_.translation_.x, -kMoveLimitX);
 	worldTransform_.translation_.x = min(worldTransform_.translation_.x, +kMoveLimitX);
@@ -83,11 +98,11 @@ void Player::Update(ViewProjection viewProjection) {
 
 	worldTransform3Dreticle_.UpdateMatrix();
 
-	Vector3 positionReticle = {
+	/*Vector3 positionReticle = {
 	    worldTransform3Dreticle_.matWorld_.m[3][0],
 		worldTransform3Dreticle_.matWorld_.m[3][1],
 	    worldTransform3Dreticle_.matWorld_.m[3][2]
-	};
+	};*/
 
 	Matrix4x4 viewportMatrix =
 	    MakeViewportMatrix(0.0f, 0.0f, WinApp::kWindowWidth, WinApp::kWindowHeight);
@@ -95,10 +110,40 @@ void Player::Update(ViewProjection viewProjection) {
 	Matrix4x4 VPVMatrix =
 	    Multiply(Multiply(viewProjection.matView, viewProjection.matProjection), viewportMatrix);
 
-	positionReticle = Transform(positionReticle, VPVMatrix);
+	//positionReticle = Transform(positionReticle, VPVMatrix);
 
-	sprite2DReticle->SetPosition(Vector2(positionReticle.x, positionReticle.y));
+	//sprite2DReticle->SetPosition(Vector2(positionReticle.x, positionReticle.y));
 
+	/*POINT mousePosition;
+
+	GetCursorPos(&mousePosition);
+
+	HWND hwnd = WinApp::GetInstance()->GetHwnd();
+	ScreenToClient(hwnd, &mousePosition);
+
+	sprite2DReticle->SetPosition(Vector2(float(mousePosition.x), float(mousePosition.y)));*/
+
+	Matrix4x4 InverseVPVMatrix = Inverse(VPVMatrix);
+
+	Vector3 PosNear = Vector3(float(spritePos.x), float(spritePos.y), 0.0f);
+	Vector3 PosFar = Vector3(float(spritePos.x), float(spritePos.y), 1.0f);
+
+	PosNear = Transform(PosNear, InverseVPVMatrix);
+	PosFar = Transform(PosFar, InverseVPVMatrix);
+
+	Vector3 Direction = Sub(PosFar, PosNear);
+	
+	Direction = Normalize(Direction);
+
+	const float kDistanceTestObject = kDistancePlayerTo3Dreticle;
+	
+	worldTransform3Dreticle_.translation_ = {
+	    PosNear.x + Normalize(Direction).x * kDistanceTestObject,
+	    PosNear.y + Normalize(Direction).y * kDistanceTestObject,
+	    PosNear.z + Normalize(Direction).z * kDistanceTestObject
+	};
+
+	worldTransform3Dreticle_.UpdateMatrix();
 
 #ifdef _DEBUG
 	ImGui::Begin("Player");
@@ -106,6 +151,14 @@ void Player::Update(ViewProjection viewProjection) {
 	    "Position\n%.02f %.02f %.02f\nRatate\n%.02f", worldTransform_.translation_.x,
 	    worldTransform_.translation_.y, worldTransform_.translation_.z,
 	    worldTransform_.rotation_.y);
+	ImGui::Text(
+	    "2DReticle:(%f,%f)", sprite2DReticle->GetPosition().x, sprite2DReticle->GetPosition().y);
+	//ImGui::Text("Near:(%+.2f,%+.2f,%+.2f)", PosNear.x, PosNear.y, PosNear.z);
+	//ImGui::Text("Far:(%+.2f,%+.2f,%+.2f)", PosFar.x, PosFar.y, PosFar.z);
+	/*ImGui::Text(
+	    "3DReticle:(%+.2f,%+.2f,%+.2f)", worldTransform3Dreticle_.translation_.x,
+	    worldTransform3Dreticle_.translation_.y, worldTransform3Dreticle_.translation_.z);*/
+
 	ImGui::End();
 #endif
 
@@ -122,7 +175,14 @@ void Player::DrawUI() {
 }
 
 void Player::Attack() {
-	if (input_->TriggerKey(DIK_SPACE)) {
+
+	XINPUT_STATE joyState;
+
+	if (!Input::GetInstance()->GetJoystickState(0, joyState)) {
+		return;
+	}
+
+	if (joyState.Gamepad.wButtons&XINPUT_GAMEPAD_RIGHT_SHOULDER) {
 
 		//弾の速度
 		const float kBulletSpeed = 1.0f;
@@ -142,7 +202,6 @@ void Player::Attack() {
 		newBullet->Initialize(model_, GetWorldPosition(), velocity);
 		//弾を登録する
 		gameScene_->AddPlayerBullet(newBullet);
-
 	} 
 
 }
