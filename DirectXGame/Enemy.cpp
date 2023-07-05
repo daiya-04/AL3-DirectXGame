@@ -8,45 +8,24 @@
 
 
 Enemy::~Enemy() { 
-
+	delete state_;
 }
 
-void (Enemy::*Enemy::spFuncTable[])() = {
-	&Enemy::ApproachUpdate, 
-	&Enemy::LeaveUpdate
-};
-
-void Enemy::Initialize(Model* model, uint32_t textureHandle, Vector3 position) { 
+void Enemy::Initialize(Model* model, uint32_t textureHandle, Vec3 position) { 
 	assert(model); 
 	model_ = model;
 	textureHandle_ = textureHandle;
 	worldTransform_.Initialize();
 	worldTransform_.translation_ = position;
 	input_ = Input::GetInstance();
+	state_ = new EnemyStateApproach();
 	
 	
-	ApproachInitialize();
 }
 
 void Enemy::Update() {
 
-	
-
-	
-
-	/*switch (phase_) {
-		case Phase::Approach:
-	    default:
-		    ApproachUpdate();
-		    break;
-		case Phase::Leave:
-			LeaveUpdate();
-		    break;
-	}*/
-
-	(this->*spFuncTable[static_cast<size_t>(phase_)])();
-
-	
+	state_->Update();
 
 	worldTransform_.UpdateMatrix();
 
@@ -55,20 +34,12 @@ void Enemy::Update() {
 	ImGui::Text(
 	    "Position\n%.02f %.02f %.02f\n", worldTransform_.translation_.x,
 	    worldTransform_.translation_.y, worldTransform_.translation_.z);
-	if (phase_ == Phase::Approach) {
-		    ImGui::Text("Phase : Approach\n");
-	}
-	if (phase_ == Phase::Leave) {
-		    ImGui::Text("Phase : Leave\n");
-	}
 	ImGui::End();
 #endif
 }
 
 void Enemy::Draw(ViewProjection viewProjection) {
 	model_->Draw(worldTransform_, viewProjection, textureHandle_);
-
-	
 }
 
 
@@ -78,10 +49,10 @@ void Enemy::Fire() {
 
 	const float kBulletSpeed = 1.0f;
 	
-	Vector3 worldPlayerPos = player_->GetWorldPosition();
-	Vector3 worldEnemyPos = GetWorldPosition();
-	Vector3 length = Sub(worldEnemyPos, worldPlayerPos);
-	Vector3 velocity = Mul(kBulletSpeed,Normalize(length));
+	Vec3 worldPlayerPos = player_->GetWorldPosition();
+	Vec3 worldEnemyPos = GetWorldPosition();
+	Vec3 length = worldEnemyPos - worldPlayerPos;
+	Vec3 velocity = kBulletSpeed * length.Normalize();
 
 	EnemyBullet* newBullet = new EnemyBullet();
 	newBullet->Initialize(model_, worldTransform_.translation_, velocity);
@@ -91,38 +62,65 @@ void Enemy::Fire() {
 
 void Enemy::OnCollision() { isDead_ = true; }
 
-void Enemy::ApproachInitialize() { 
-	fireTimer = kFireInterval;
+void Enemy::ChangeState(BaseEnemyState* newState) {
+	delete state_; 
+	state_ = newState;
 }
 
-void Enemy::ApproachUpdate() {
+void Enemy::EnemyMove(const Vec3& move) {
+	worldTransform_.translation_ += move;
+}
 
-	worldTransform_.translation_ = Add(worldTransform_.translation_, {0.0f, 0.0f, -0.1f});
+
+
+Vec3 Enemy::GetLocalPosition() {
+
+	Vec3 localPos;
+
+	localPos.x = worldTransform_.translation_.x;
+	localPos.y = worldTransform_.translation_.y;
+	localPos.z = worldTransform_.translation_.z;
+
+	return localPos;
+}
+
+Vec3 Enemy::GetWorldPosition() {
+
+	Vec3 worldPos;
+
+	worldPos.x = worldTransform_.matWorld_.m[3][0];
+	worldPos.y = worldTransform_.matWorld_.m[3][1];
+	worldPos.z = worldTransform_.matWorld_.m[3][2];
+
+	return worldPos;
+}
+
+BaseEnemyState::~BaseEnemyState() { delete enemy_;}
+
+EnemyStateApproach::~EnemyStateApproach() { delete enemy_; }
+
+void EnemyStateApproach::Initialize() {
+	//fireTimer = kFireInterval;
+}
+
+void EnemyStateApproach::Update() {
 	
-	if (worldTransform_.translation_.z < 0.0f) {
-		phase_ = Phase::Leave;
+	enemy_->EnemyMove({0.0f, 0.0f, -0.1f});
+
+	if (enemy_->GetLocalPosition().z < 0.0f) {
+		    enemy_->ChangeState(new EnemyStateLeave());
 	}
 
-	fireTimer--;
+	/*fireTimer--;
 	if (fireTimer == 0) {
-	
-		Fire();
-		fireTimer = kFireInterval;
-	}
+
+		    Fire();
+		    fireTimer = kFireInterval;
+	}*/
 }
 
-void Enemy::LeaveUpdate() {
+EnemyStateLeave::~EnemyStateLeave() { delete enemy_; }
 
-	worldTransform_.translation_ = Add(worldTransform_.translation_, {-0.07f, 0.08f, -0.2f});
-}
-
-Vector3 Enemy::GetWorldPosition() {
-
-	Vector3 WorldPos;
-
-	WorldPos.x = worldTransform_.matWorld_.m[3][0];
-	WorldPos.y = worldTransform_.matWorld_.m[3][1];
-	WorldPos.z = worldTransform_.matWorld_.m[3][2];
-
-	return WorldPos;
+void EnemyStateLeave::Update() {
+	enemy_->EnemyMove({-0.07f, 0.08f, -0.2f});
 }

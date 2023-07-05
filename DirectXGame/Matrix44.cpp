@@ -92,7 +92,7 @@ Matrix4x4 MakeIdentity44() {
 	};
 }
 
-Matrix4x4 MakeTranslateMatrix(const Vector3& translate) {
+Matrix4x4 MakeTranslateMatrix(const Vec3& translate) {
 	return {
 		1.0f,0.0f,0.0f,0.0f,
 		0.0f,1.0f,0.0f,0.0f,
@@ -101,7 +101,7 @@ Matrix4x4 MakeTranslateMatrix(const Vector3& translate) {
 	};
 }
 
-Matrix4x4 MakeScaleMatrix(const Vector3& scale) {
+Matrix4x4 MakeScaleMatrix(const Vec3& scale) {
 	return {
 		scale.x,0.0f,0.0f,0.0f,
 		0.0f,scale.y,0.0f,0.0f,
@@ -110,8 +110,8 @@ Matrix4x4 MakeScaleMatrix(const Vector3& scale) {
 	};
 }
 
-Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix) {
-	Vector3 result;
+Vec3 Transform(const Vec3& vector, const Matrix4x4& matrix) {
+	Vec3 result;
 	result.x = vector.x * matrix.m[0][0] + vector.y * matrix.m[1][0] + vector.z * matrix.m[2][0] + 1.0f * matrix.m[3][0];
 	result.y = vector.x * matrix.m[0][1] + vector.y * matrix.m[1][1] + vector.z * matrix.m[2][1] + 1.0f * matrix.m[3][1];
 	result.z = vector.x * matrix.m[0][2] + vector.y * matrix.m[1][2] + vector.z * matrix.m[2][2] + 1.0f * matrix.m[3][2];
@@ -153,7 +153,7 @@ Matrix4x4 MakerotateZMatrix(float radian) {
 	};
 }
 
-Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate) {
+Matrix4x4 MakeAffineMatrix(const Vec3& scale, const Vec3& rotate, const Vec3& translate) {
 	Matrix4x4 rotateXMatrix = MakerotateXMatrix(rotate.x);
 	Matrix4x4 rotateYMatrix = MakerotateYMatrix(rotate.y);
 	Matrix4x4 rotateZMatrix = MakerotateZMatrix(rotate.z);
@@ -205,7 +205,7 @@ Matrix4x4 MakeViewportMatrix(float left, float top, float width, float height, f
 	return result;
 }
 
-Vector3 TransformNormal(const Vector3& vector, const Matrix4x4& matrix) {
+Vec3 TransformNormal(const Vec3& vector, const Matrix4x4& matrix) {
 	return {
 	    vector.x * matrix.m[0][0] + vector.y * matrix.m[1][0] + vector.z * matrix.m[2][0],
 	    vector.x * matrix.m[0][1] + vector.y * matrix.m[1][1] + vector.z * matrix.m[2][1],

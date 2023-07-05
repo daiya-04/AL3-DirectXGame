@@ -41,7 +41,7 @@ public:
 	void Attack();
 	void OnCollision();
 
-	Vector3 GetWorldPosition();
+	Vec3 GetWorldPosition();
 
 	void SetParent(const WorldTransform* parent);
 	void SetGameScene(GameScene* gameScene) { gameScene_ = gameScene; }

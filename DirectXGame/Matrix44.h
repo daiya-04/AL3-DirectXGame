@@ -18,11 +18,11 @@ Matrix4x4 Transpose(const Matrix4x4& m);
 //単位行列
 Matrix4x4 MakeIdentity44();
 //平行移動行列
-Matrix4x4 MakeTranslateMatrix(const Vector3& translate);
+Matrix4x4 MakeTranslateMatrix(const Vec3& translate);
 //拡大縮小行列
-Matrix4x4 MakeScaleMatrix(const Vector3& scale);
+Matrix4x4 MakeScaleMatrix(const Vec3& scale);
 //座標変換
-Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix);
+Vec3 Transform(const Vec3& vector, const Matrix4x4& matrix);
 //X軸回転行列
 Matrix4x4 MakerotateXMatrix(float radian);
 //Y軸回転行列
@@ -30,7 +30,7 @@ Matrix4x4 MakerotateYMatrix(float radian);
 //Z軸回転行列
 Matrix4x4 MakerotateZMatrix(float radian);
 //3次元アフィン変換行列
-Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate);
+Matrix4x4 MakeAffineMatrix(const Vec3& scale, const Vec3& rotate, const Vec3& translate);
 //透視投影行列
 Matrix4x4 MakePerspectiveFovMatrix(float fovY, float aspectRatio, float nearClip, float farClip);
 //正射影行列
@@ -38,5 +38,5 @@ Matrix4x4 MakeOrthographicMatrix(float left, float top, float right, float botto
 //ビューポート変換行列
 Matrix4x4 MakeViewportMatrix(float left, float top, float width, float height, float minDepth = 0.0f, float maxDepth = 1.0f);
 
-Vector3 TransformNormal(const Vector3& vector, const Matrix4x4& matrix);
+Vec3 TransformNormal(const Vec3& vector, const Matrix4x4& matrix);
 

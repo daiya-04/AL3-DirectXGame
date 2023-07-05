@@ -1,7 +1,7 @@
 #include "PlayerBullet.h"
 #include <assert.h>
 
-void PlayerBullet::Initialize(Model* model, const Vector3& position, const Vector3& velocity) { 
+void PlayerBullet::Initialize(Model* model, const Vec3& position, const Vec3& velocity) { 
 	assert(model); 
 
 	model_ = model;
@@ -18,7 +18,7 @@ void PlayerBullet::Initialize(Model* model, const Vector3& position, const Vecto
 
 void PlayerBullet::Update() {
 
-	worldTransform_.translation_ = Add(worldTransform_.translation_, velocity_);
+	worldTransform_.translation_ += velocity_;
 
 	worldTransform_.UpdateMatrix();
 
@@ -36,9 +36,9 @@ void PlayerBullet::OnCollision() {
 	isDead_ = true;
 }
 
-Vector3 PlayerBullet::GetWorldPosition() {
+Vec3 PlayerBullet::GetWorldPosition() {
 
-	Vector3 WorldPos;
+	Vec3 WorldPos;
 
 	WorldPos.x = worldTransform_.translation_.x;
 	WorldPos.y = worldTransform_.translation_.y;

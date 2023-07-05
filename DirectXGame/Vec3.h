@@ -1,18 +1,109 @@
-﻿#pragma once
-#include "Vector3.h"
+#pragma once
+#include <cmath>
+#include <algorithm>
 
-const int kColumnWidht = 60;
-const int kRowHeight = 20;
+class Vec3 {
+public:
+	float x = 0.0f;
+	float y = 0.0f;
+	float z = 0.0f;
+public:
 
-Vector3 Add(const Vector3& v1, const Vector3& v2);
-Vector3 Sub(const Vector3& v1, const Vector3& v2);
-Vector3 Mul(float scalar, const Vector3& v);
-float Dot(const Vector3& v1, const Vector3& v2);
-Vector3 Cross(const Vector3& v1, const Vector3& v2);
-float Length(const Vector3& v);
-Vector3 Normalize(const Vector3& v);
-Vector3 Inverse(const Vector3& v);
-float Lerp(float t, float start, float end);
-Vector3 Lerp(float t, const Vector3& start, const Vector3& end);
-float Clamp(float value, float min = 0.0f, float max = 1.0f);
-Vector3 Project(const Vector3& v1, const Vector3& v2);
+	inline Vec3(){}
+	inline Vec3(float x, float y, float z) : x(x), y(y), z(z) {}
+	inline Vec3(const Vec3& vector) : x(vector.x), y(vector.y), z(vector.z) {}
+
+	inline Vec3 operator-() const { return{ -x,-y,-z }; }
+
+	inline Vec3& operator+=(const Vec3& vector) {
+		x += vector.x;
+		y += vector.y;
+		z += vector.z;
+		return *this;
+	}
+
+	inline Vec3& operator-=(const Vec3& vector) {
+		x -= vector.x;
+		y -= vector.y;
+		z -= vector.z;
+		return *this;
+	}
+
+	inline Vec3& operator*=(const float scalar) {
+		x *= scalar;
+		y *= scalar;
+		z *= scalar;
+		return *this;
+	}
+
+	inline Vec3& operator/=(const Vec3& vector) {
+		x /= vector.x;
+		y /= vector.y;
+		z /= vector.z;
+		return *this;
+	}
+	
+	friend inline Vec3 operator+(const Vec3& v1, const Vec3& v2) {
+		return { v1.x + v2.x,v1.y + v2.y,v1.z + v2.z };
+	}
+
+	friend inline Vec3 operator-(const Vec3& v1, const Vec3& v2) {
+		return { v1.x - v2.x,v1.y - v2.y,v1.z - v2.z };
+	}
+
+	friend inline Vec3 operator*(const Vec3& vector, const float scalar) {
+		return { vector.x * scalar,vector.y * scalar,vector.z * scalar };
+	}
+
+	friend inline Vec3 operator*(const float scalar, const Vec3& vector) {
+		return { scalar * vector.x,scalar * vector.y,scalar * vector.z };
+	}
+
+	friend inline Vec3 operator/(const Vec3& vector, const float scalar) {
+		return { vector.x / scalar,vector.y / scalar,vector.z / scalar };
+	}
+
+	friend inline bool operator==(const Vec3& v1, const Vec3& v2) {
+		return { v1.x == v2.x && v1.y == v2.y && v1.z == v2.z };
+	}
+
+	friend inline bool operator!=(const Vec3& v1, const Vec3& v2) {
+		return !(v1 == v2);
+	}
+
+	friend inline float Dot(const Vec3& v1, const Vec3& v2) {
+		return { v1.x * v2.x + v1.y * v2.y + v1.z * v2.z };
+	}
+
+	friend inline Vec3 Cross(const Vec3& v1, const Vec3& v2) {
+		return { v1.y * v2.z - v1.z * v2.y,v1.z * v2.x-v1.x * v2.z,v1.x * v2.y - v1.y * v2.x };
+	}
+
+	inline float Length() const {
+		return sqrtf(x * x + y * y + z * z);
+	}
+
+	inline Vec3 Normalize() const {
+		return *this / Length();
+	}
+
+	friend inline Vec3 Lerp(float t, const Vec3& start, const Vec3& end) {
+		t = std::clamp(t, 0.0f, 1.0f);
+		return { (1.0f - t) * start + t * end };
+	}
+
+	friend inline Vec3 Project(const Vec3& v1, const Vec3& v2) {
+		float t = Dot(v1, v2) / std::powf(v2.Length(), 2);
+
+		t = std::clamp(t, 0.0f, 1.0f);
+
+		return t * v2;
+	}
+
+	friend inline Vec3 Perpendicular(const Vec3& vector) {
+		if (vector.x != 0.0f || vector.y != 0.0f) {
+			return { -vector.y,vector.x,0.0f };
+		}
+		return { 0.0f,-vector.z,vector.y };
+	}
+};

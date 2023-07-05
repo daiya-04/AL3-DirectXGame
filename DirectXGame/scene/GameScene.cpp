@@ -209,7 +209,7 @@ void GameScene::Draw() {
 void GameScene::CheckAllCollision() {
 
 	//判定対象AとBの座標
-	Vector3 posA, posB;
+	Vec3 posA, posB;
 
 	
 	
@@ -221,7 +221,7 @@ void GameScene::CheckAllCollision() {
 	for (EnemyBullet* bullet : enemyBullets_) {
 		//敵弾の座標
 		posB = bullet->GetWorldPosition();
-		float length = Length(Sub(posA, posB));
+		float length = (posA - posB).Length();
 		if (length<=2) {
 			player_->OnCollision();
 			bullet->OnCollision();
@@ -237,7 +237,7 @@ void GameScene::CheckAllCollision() {
 		for (PlayerBullet* bullet : playerBullets_) {
 			// 自キャラの座標
 			posB = bullet->GetWorldPosition();
-			float length = Length(Sub(posA, posB));
+			float length = (posA - posB).Length();
 			if (length <= 2) {
 				enemy->OnCollision();
 				bullet->OnCollision();
@@ -252,7 +252,7 @@ void GameScene::CheckAllCollision() {
 		for (EnemyBullet* bulletB : enemyBullets_) {
 			posA = bulletA->GetWorldPosition();
 			posB = bulletB->GetWorldPosition();
-			float length = Length(Sub(posA, posB));
+			float length = (posA - posB).Length();
 			if (length <= 2) {
 				bulletA->OnCollision();
 				bulletB->OnCollision();
@@ -270,7 +270,7 @@ void GameScene::AddPlayerBullet(PlayerBullet* playerBullet) {
 	playerBullets_.push_back(playerBullet);
 }
 
-void GameScene::EnemyPop(Vector3 vector) {
+void GameScene::EnemyPop(Vec3 vector) {
 	// 敵キャラの生成
 	Enemy* enemy_ = new Enemy();
 	// 敵キャラの初期化

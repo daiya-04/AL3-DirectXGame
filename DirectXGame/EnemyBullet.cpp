@@ -1,7 +1,7 @@
 #include "EnemyBullet.h"
 #include<assert.h>
 
-void EnemyBullet::Initialize(Model* model, const Vector3& position,const Vector3& velocity) {
+void EnemyBullet::Initialize(Model* model, const Vec3& position,const Vec3& velocity) {
 	
 	assert(model);
 
@@ -17,7 +17,7 @@ void EnemyBullet::Initialize(Model* model, const Vector3& position,const Vector3
 
 void EnemyBullet::Update() {
 
-	worldTransform_.translation_ = Sub(worldTransform_.translation_,velocity_);
+	worldTransform_.translation_ -= velocity_;
 
 	worldTransform_.UpdateMatrix();
 
@@ -35,9 +35,9 @@ void EnemyBullet::OnCollision() {
 	isDead_ = true;
 }
 
-Vector3 EnemyBullet::GetWorldPosition() {
+Vec3 EnemyBullet::GetWorldPosition() {
 
-	Vector3 WorldPos;
+	Vec3 WorldPos;
 
 	WorldPos.x = worldTransform_.translation_.x;
 	WorldPos.y = worldTransform_.translation_.y;

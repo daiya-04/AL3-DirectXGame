@@ -30,7 +30,7 @@ void Player::Update(ViewProjection viewProjection) {
 	XINPUT_STATE joyState;
 
 	//キャラクターの移動ベクトル
-	Vector3 move = {};
+	Vec3 move = {};
 	//キャラクターの移動速さ
 	const float kCharacterSpeed = 0.5f;
 	const float kRotSpeed = 0.02f;
@@ -70,7 +70,7 @@ void Player::Update(ViewProjection viewProjection) {
 	//プレイヤー攻撃
 	Attack();
 
-	worldTransform_.translation_ = Add(worldTransform_.translation_, move);
+	worldTransform_.translation_ += move;
 
 	const float kMoveLimitX = 20;
 	const float kMoveLimitY = 11;
@@ -88,9 +88,9 @@ void Player::Update(ViewProjection viewProjection) {
 
 	// 自機から3Dレティクルへの距離
 	const float kDistancePlayerTo3Dreticle = 50.0f;
-	Vector3 offset = {0.0f, 0.0f, 1.0f};
+	Vec3 offset = {0.0f, 0.0f, 1.0f};
 	offset = TransformNormal(offset, worldTransform_.matWorld_);
-	offset = Mul(kDistancePlayerTo3Dreticle, Normalize(offset));
+	offset = kDistancePlayerTo3Dreticle * offset.Normalize();
 	worldTransform3Dreticle_.translation_ = {
 	    GetWorldPosition().x + offset.x, GetWorldPosition().y + offset.y,
 	    GetWorldPosition().z + offset.z
@@ -125,22 +125,22 @@ void Player::Update(ViewProjection viewProjection) {
 
 	Matrix4x4 InverseVPVMatrix = Inverse(VPVMatrix);
 
-	Vector3 PosNear = Vector3(float(spritePos.x), float(spritePos.y), 0.0f);
-	Vector3 PosFar = Vector3(float(spritePos.x), float(spritePos.y), 1.0f);
+	Vec3 PosNear = Vec3(float(spritePos.x), float(spritePos.y), 0.0f);
+	Vec3 PosFar = Vec3(float(spritePos.x), float(spritePos.y), 1.0f);
 
 	PosNear = Transform(PosNear, InverseVPVMatrix);
 	PosFar = Transform(PosFar, InverseVPVMatrix);
 
-	Vector3 Direction = Sub(PosFar, PosNear);
+	Vec3 Direction = PosFar - PosNear;
 	
-	Direction = Normalize(Direction);
+	Direction = Direction.Normalize();
 
 	const float kDistanceTestObject = kDistancePlayerTo3Dreticle;
 	
 	worldTransform3Dreticle_.translation_ = {
-	    PosNear.x + Normalize(Direction).x * kDistanceTestObject,
-	    PosNear.y + Normalize(Direction).y * kDistanceTestObject,
-	    PosNear.z + Normalize(Direction).z * kDistanceTestObject
+	    PosNear.x + Direction.Normalize().x * kDistanceTestObject,
+	    PosNear.y + Direction.Normalize().y * kDistanceTestObject,
+	    PosNear.z + Direction.Normalize().z * kDistanceTestObject
 	};
 
 	worldTransform3Dreticle_.UpdateMatrix();
@@ -186,16 +186,16 @@ void Player::Attack() {
 
 		//弾の速度
 		const float kBulletSpeed = 1.0f;
-		Vector3 velocity(0, 0, kBulletSpeed);
+		Vec3 velocity(0, 0, kBulletSpeed);
 
-		Vector3 WorldPos3DRetivle = {
+		Vec3 WorldPos3DRetivle = {
 		    worldTransform3Dreticle_.matWorld_.m[3][0],
 		    worldTransform3Dreticle_.matWorld_.m[3][1],
 		    worldTransform3Dreticle_.matWorld_.m[3][2],
 		};
 
-		velocity = Sub(WorldPos3DRetivle, GetWorldPosition());
-		velocity = Mul(kBulletSpeed,Normalize(velocity));
+		velocity = WorldPos3DRetivle - GetWorldPosition();
+		velocity = kBulletSpeed * velocity.Normalize();
 
 		//弾の生成と初期化
 		PlayerBullet* newBullet = new PlayerBullet();
@@ -210,9 +210,9 @@ void Player::OnCollision() {
 
 }
 
-Vector3 Player::GetWorldPosition() {
+Vec3 Player::GetWorldPosition() {
 
-	Vector3 WorldPos;
+	Vec3 WorldPos;
 
 	WorldPos.x = worldTransform_.matWorld_.m[3][0];
 	WorldPos.y = worldTransform_.matWorld_.m[3][1];

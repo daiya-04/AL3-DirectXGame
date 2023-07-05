@@ -1,5 +1,7 @@
 #include "RailCamera.h"
 #include "imgui.h"
+#include "Vec3.h"
+#include "Matrix44.h"
 
 void RailCamera::Initialize(ViewProjection camera) {
 
@@ -12,8 +14,8 @@ void RailCamera::Initialize(ViewProjection camera) {
 
 void RailCamera::Update() {
 
-	worldTransform_.translation_ = Add(worldTransform_.translation_, {0.0f, 0.0f, 0.0f});
-	worldTransform_.rotation_ = Add(worldTransform_.rotation_, {0.0f, 0.001f, 0.0f});
+	worldTransform_.translation_ += {0.0f, 0.0f, 0.0f};
+	worldTransform_.rotation_ += {0.0f, 0.001f, 0.0f};
 	worldTransform_.matWorld_ = MakeAffineMatrix(
 	    {1.0f,1.0f,1.0f}, worldTransform_.rotation_, worldTransform_.translation_);
 

@@ -66,7 +66,7 @@ public: // メンバ関数
 	/// <summary>
 	/// 敵を発生させる
 	/// </summary>
-	void EnemyPop(Vector3 vector);
+	void EnemyPop(Vec3 vector);
 
     /// <summary>
     /// 敵発生データの読み込み
