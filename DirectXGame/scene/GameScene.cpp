@@ -1,6 +1,7 @@
 #include "GameScene.h"
 #include "TextureManager.h"
 #include <cassert>
+#include "AxisIndicator.h"
 
 GameScene::GameScene() {}
 
@@ -11,9 +12,46 @@ void GameScene::Initialize() {
 	dxCommon_ = DirectXCommon::GetInstance();
 	input_ = Input::GetInstance();
 	audio_ = Audio::GetInstance();
+
+	textureHandle_ = TextureManager::Load("mario.jpg");
+
+	viewProjection_.Initialize();
+
+	debugCamera_ = std::make_unique<DebugCamera>(WinApp::kWindowWidth,WinApp::kWindowHeight);
+	model_.reset(Model::Create());
+
+	player_ = std::make_unique<Player>();
+	player_->Initialize(model_.get(),textureHandle_);
+
+	// 軸方向表示を有効にする
+	AxisIndicator::GetInstance()->SetVisible(true);
+	//軸方向表示が参照するViewProjectionを指定する
+	AxisIndicator::GetInstance()->SetTargetViewProjection(&viewProjection_);
 }
 
-void GameScene::Update() {}
+void GameScene::Update() {
+
+	player_->Update();
+
+#ifdef _DEBUG
+	if (input_->TriggerKey(DIK_RETURN)) {
+		isDebugCameraActive_ = true;
+	}
+#endif // DEBUG
+
+	if (isDebugCameraActive_) {
+		debugCamera_->Update();
+
+		viewProjection_.matView = debugCamera_->GetViewProjection().matView;
+		viewProjection_.matProjection = debugCamera_->GetViewProjection().matProjection;
+
+		viewProjection_.TransferMatrix();
+	} else {
+		viewProjection_.UpdateMatrix();
+	}
+	
+
+}
 
 void GameScene::Draw() {
 
@@ -41,6 +79,9 @@ void GameScene::Draw() {
 	/// <summary>
 	/// ここに3Dオブジェクトの描画処理を追加できる
 	/// </summary>
+
+	player_->Draw(viewProjection_);
+	
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();

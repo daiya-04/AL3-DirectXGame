@@ -8,6 +8,9 @@
 #include "Sprite.h"
 #include "ViewProjection.h"
 #include "WorldTransform.h"
+#include "DebugCamera.h"
+#include <memory>
+#include "Player.h"
 
 /// <summary>
 /// ゲームシーン
@@ -48,4 +51,14 @@ private: // メンバ変数
 	/// <summary>
 	/// ゲームシーン用
 	/// </summary>
+	
+	uint32_t textureHandle_ = 0u;
+	bool isDebugCameraActive_ = false;
+
+	ViewProjection viewProjection_;
+
+	std::unique_ptr<DebugCamera> debugCamera_;
+	std::unique_ptr<Model> model_;
+	std::unique_ptr<Player> player_;
+
 };
