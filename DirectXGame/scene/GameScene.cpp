@@ -18,10 +18,18 @@ void GameScene::Initialize() {
 	viewProjection_.Initialize();
 
 	debugCamera_ = std::make_unique<DebugCamera>(WinApp::kWindowWidth,WinApp::kWindowHeight);
-	model_.reset(Model::Create());
+	playerModel_.reset(Model::CreateFromOBJ("player", true));
+	skydomeModel_.reset(Model::CreateFromOBJ("skydome",true));
+	groundModel_.reset(Model::CreateFromOBJ("ground", true));
 
 	player_ = std::make_unique<Player>();
-	player_->Initialize(model_.get(),textureHandle_);
+	player_->Initialize(playerModel_.get());
+
+	skydome_ = std::make_unique<Skydome>();
+	skydome_->Initialize(skydomeModel_.get());
+
+	ground_ = std::make_unique<Ground>();
+	ground_->Initialize(groundModel_.get());
 
 	// 軸方向表示を有効にする
 	AxisIndicator::GetInstance()->SetVisible(true);
@@ -32,6 +40,8 @@ void GameScene::Initialize() {
 void GameScene::Update() {
 
 	player_->Update();
+	skydome_->Update();
+	ground_->Update();
 
 #ifdef _DEBUG
 	if (input_->TriggerKey(DIK_RETURN)) {
@@ -81,7 +91,8 @@ void GameScene::Draw() {
 	/// </summary>
 
 	player_->Draw(viewProjection_);
-	
+	skydome_->Draw(viewProjection_);
+	ground_->Draw(viewProjection_);
 
 	// 3Dオブジェクト描画後処理
 	Model::PostDraw();
