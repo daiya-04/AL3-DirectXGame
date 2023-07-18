@@ -2,6 +2,7 @@
 #include "TextureManager.h"
 #include <cassert>
 #include "AxisIndicator.h"
+#include "imgui.h"
 
 GameScene::GameScene() {}
 
@@ -31,6 +32,12 @@ void GameScene::Initialize() {
 	ground_ = std::make_unique<Ground>();
 	ground_->Initialize(groundModel_.get());
 
+	followCamera_ = std::make_unique<FollowCamera>();
+	followCamera_->Initialize();
+	followCamera_->SetTarget(&player_->GetWorldTransform());
+
+	player_->SetViewProjection(&followCamera_->GetViewProjection());
+
 	// 軸方向表示を有効にする
 	AxisIndicator::GetInstance()->SetVisible(true);
 	//軸方向表示が参照するViewProjectionを指定する
@@ -42,7 +49,11 @@ void GameScene::Update() {
 	player_->Update();
 	skydome_->Update();
 	ground_->Update();
+	followCamera_->Update();
 
+	viewProjection_.matView = followCamera_->GetViewProjection().matView;
+	viewProjection_.matProjection = followCamera_->GetViewProjection().matProjection;
+	
 #ifdef _DEBUG
 	if (input_->TriggerKey(DIK_RETURN)) {
 		isDebugCameraActive_ = true;
@@ -57,10 +68,10 @@ void GameScene::Update() {
 
 		viewProjection_.TransferMatrix();
 	} else {
-		viewProjection_.UpdateMatrix();
+		viewProjection_.TransferMatrix();
 	}
 	
-
+	
 }
 
 void GameScene::Draw() {

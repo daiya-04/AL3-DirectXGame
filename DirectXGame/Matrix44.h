@@ -112,8 +112,9 @@ public:
 		}
 		return result;
 	}
+};
 
-	static inline Matrix44 MakeIdentity44() {
+    inline Matrix44 MakeIdentity44() {
 		return{
 			1.0f,0.0f,0.0f,0.0f,
 			0.0f,1.0f,0.0f,0.0f,
@@ -122,7 +123,7 @@ public:
 		};
 	}
 
-	static inline Matrix44 MakeTranslateMatrix(const Vec3& translate) {
+	inline Matrix44 MakeTranslateMatrix(const Vec3& translate) {
 		return {
 			1.0f,0.0f,0.0f,0.0f,
 			0.0f,1.0f,0.0f,0.0f,
@@ -131,7 +132,7 @@ public:
 		};
 	}
 
-	static inline Matrix44 MakeScaleMatrix(const Vec3& scale) {
+	inline Matrix44 MakeScaleMatrix(const Vec3& scale) {
 		return {
 			scale.x,0.0f,0.0f,0.0f,
 			0.0f,scale.y,0.0f,0.0f,
@@ -140,7 +141,7 @@ public:
 		};
 	}
 
-	friend inline Vec3 Transform(const Vec3& vector, const Matrix44& matrix) {
+	inline Vec3 Transform(const Vec3& vector, const Matrix44& matrix) {
 		Vec3 result{};
 		result.x = vector.x * matrix.m[0][0] + vector.y * matrix.m[1][0] + vector.z * matrix.m[2][0] + 1.0f * matrix.m[3][0];
 		result.y = vector.x * matrix.m[0][1] + vector.y * matrix.m[1][1] + vector.z * matrix.m[2][1] + 1.0f * matrix.m[3][1];
@@ -154,7 +155,7 @@ public:
 		return result;
 	}
 
-	static inline Matrix44 MakeRotateXMatrix(float radian) {
+	inline Matrix44 MakeRotateXMatrix(float radian) {
 		return {
 			1.0f,0.0f,0.0f,0.0f,
 			0.0f,std::cosf(radian),std::sinf(radian),0.0f,
@@ -163,7 +164,7 @@ public:
 		};
 	}
 
-	static inline Matrix44 MakeRotateYMatrix(float radian) {
+	inline Matrix44 MakeRotateYMatrix(float radian) {
 		return {
 			std::cosf(radian),0.0f,-std::sinf(radian),0.0f,
 			0.0f,1.0f,0.0f,0.0f,
@@ -172,7 +173,7 @@ public:
 		};
 	}
 
-	static inline Matrix44 MakeRotateZMatrix(float radian) {
+	inline Matrix44 MakeRotateZMatrix(float radian) {
 		return {
 			std::cosf(radian),std::sinf(radian),0.0f,0.0f,
 			-std::sinf(radian),std::cosf(radian),0.0f,0.0f,
@@ -181,7 +182,7 @@ public:
 		};
 	}
 
-	static inline Matrix44 MakeAffinMatrix(const Vec3& scale, const Vec3& rotate, const Vec3& translation) {
+	inline Matrix44 MakeAffineMatrix(const Vec3& scale, const Vec3& rotate, const Vec3& translation) {
 		
 		Matrix44 rotateMatrix = MakeRotateXMatrix(rotate.x) * MakeRotateYMatrix(rotate.y) * MakeRotateZMatrix(rotate.z);
 		Matrix44 scaleMatrix = MakeScaleMatrix(scale);
@@ -190,7 +191,7 @@ public:
 		return scaleMatrix * rotateMatrix * translateMatrix;
 	}
 
-	static inline Matrix44 MakePerspectiveFovMatrix(float fovY, float aspectRatio, float nearClip, float farClip) {
+	inline Matrix44 MakePerspectiveFovMatrix(float fovY, float aspectRatio, float nearClip, float farClip) {
 		Matrix44 result{};
 		result.m[0][0] = (1.0f / aspectRatio) * (1.0f / std::tanf(fovY / 2.0f));
 		result.m[1][1] = (1.0f / std::tanf(fovY / 2.0f));
@@ -201,7 +202,7 @@ public:
 		return result;
 	}
 
-	static inline Matrix44 MakeOrthographicMatrix(float left, float right, float top, float bottom, float nearClip, float farClip) {
+	inline Matrix44 MakeOrthographicMatrix(float left, float right, float top, float bottom, float nearClip, float farClip) {
 		Matrix44 result{};
 		result.m[0][0] = 2.0f / (right - left);
 		result.m[1][1] = 2.0f / (top - bottom);
@@ -214,7 +215,7 @@ public:
 		return result;
 	}
 
-	static inline Matrix44 MakeViewportMatrix(float left, float top, float width, float height, float minDepth = 0.0f, float maxDepth = 1.0f) {
+	inline Matrix44 MakeViewportMatrix(float left, float top, float width, float height, float minDepth = 0.0f, float maxDepth = 1.0f) {
 		Matrix44 result{};
 		float w = width / 2.0f;
 		float h = height / 2.0f;
@@ -230,4 +231,9 @@ public:
 		return result;
 	}
 
-};
+	inline Vec3 TransformNormal(const Vec3& vector, const Matrix44& matrix) {
+	    return {
+	        vector.x * matrix.m[0][0] + vector.y * matrix.m[1][0] + vector.z * matrix.m[2][0],
+	        vector.x * matrix.m[0][1] + vector.y * matrix.m[1][1] + vector.z * matrix.m[2][1],
+	        vector.x * matrix.m[0][2] + vector.y * matrix.m[1][2] + vector.z * matrix.m[2][2]};
+    }

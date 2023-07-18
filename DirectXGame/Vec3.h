@@ -100,10 +100,18 @@ public:
 		return t * v2;
 	}
 
-	inline Vec3 Perpendicular() {
+	inline Vec3 Perpendicular() const {
 		if (x != 0.0f || y != 0.0f) {
 			return { -y,x,0.0f };
 		}
 		return { 0.0f,-z,y };
+	}
+
+	friend inline Vec3 Bazier(const Vec3& p0, const Vec3& p1, const Vec3& p2, float t) {
+		Vec3 p0p1 = Lerp(t, p0, p1);
+		Vec3 p1p2 = Lerp(t, p1, p2);
+		Vec3 p = Lerp(t, p0p1, p1p2);
+
+		return p;
 	}
 };

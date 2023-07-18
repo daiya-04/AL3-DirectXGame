@@ -1,15 +1,15 @@
 #pragma once
 
-#include "Matrix4x4.h"
-#include "Vector3.h"
+#include "Matrix44.h"
+#include "Vec3.h"
 #include <d3d12.h>
 #include <wrl.h>
 
 // 定数バッファ用データ構造体
 struct ConstBufferDataViewProjection {
-	Matrix4x4 view;       // ワールド → ビュー変換行列
-	Matrix4x4 projection; // ビュー → プロジェクション変換行列
-	Vector3 cameraPos;    // カメラ座標（ワールド座標）
+	Matrix44 view;       // ワールド → ビュー変換行列
+	Matrix44 projection; // ビュー → プロジェクション変換行列
+	Vec3 cameraPos;    // カメラ座標（ワールド座標）
 };
 
 /// <summary>
@@ -23,9 +23,9 @@ struct ViewProjection {
 
 #pragma region ビュー行列の設定
 	// X,Y,Z軸回りのローカル回転角
-	Vector3 rotation_ = {0, 0, 0};
+	Vec3 rotation_ = {0, 0, 0};
 	// ローカル座標
-	Vector3 translation_ = {0, 0, -50};
+	Vec3 translation_ = {0, 0, -50};
 #pragma endregion
 
 #pragma region 射影行列の設定
@@ -40,9 +40,9 @@ struct ViewProjection {
 #pragma endregion
 
 	// ビュー行列
-	Matrix4x4 matView;
+	Matrix44 matView;
 	// 射影行列
-	Matrix4x4 matProjection;
+	Matrix44 matProjection;
 
 	/// <summary>
 	/// 初期化

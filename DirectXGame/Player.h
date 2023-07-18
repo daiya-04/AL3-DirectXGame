@@ -2,6 +2,7 @@
 #include "Model.h"
 #include "WorldTransform.h"
 #include "ViewProjection.h"
+#include "Input.h"
 
 class Player {
 private:
@@ -10,6 +11,13 @@ private:
 	WorldTransform worldTransform_;
 	//モデル
 	Model* model_ = nullptr;
+
+	Input* input_ = nullptr;
+
+	const ViewProjection* viewProjection_ = nullptr;
+
+	Vec3 rotate;
+
 	
 
 public:
@@ -28,5 +36,9 @@ public:
 	/// </summary>
 	/// <param name="vewProjection">ビュープロジェクション (参照渡し)</param>
 	void Draw(ViewProjection& vewProjection);
+
+	void SetViewProjection(const ViewProjection* viewProjection) { viewProjection_ = viewProjection; }
+
+	WorldTransform& GetWorldTransform() { return worldTransform_; }
 
 };
