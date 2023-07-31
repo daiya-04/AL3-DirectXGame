@@ -19,12 +19,17 @@ void GameScene::Initialize() {
 	viewProjection_.Initialize();
 
 	debugCamera_ = std::make_unique<DebugCamera>(WinApp::kWindowWidth,WinApp::kWindowHeight);
-	playerModel_.reset(Model::CreateFromOBJ("player", true));
+
+	modelPlayerBody_.reset(Model::CreateFromOBJ("float_Body", true));
+	modelPlayerHead_.reset(Model::CreateFromOBJ("float_Head", true));
+	modelPlayerL_arm_.reset(Model::CreateFromOBJ("float_L_Arm", true));
+	modelPlayerR_arm_.reset(Model::CreateFromOBJ("float_R_Arm", true));
+
 	skydomeModel_.reset(Model::CreateFromOBJ("skydome",true));
 	groundModel_.reset(Model::CreateFromOBJ("ground", true));
 
 	player_ = std::make_unique<Player>();
-	player_->Initialize(playerModel_.get());
+	player_->Initialize(modelPlayerBody_.get(), modelPlayerHead_.get(), modelPlayerL_arm_.get(), modelPlayerR_arm_.get());
 
 	skydome_ = std::make_unique<Skydome>();
 	skydome_->Initialize(skydomeModel_.get());

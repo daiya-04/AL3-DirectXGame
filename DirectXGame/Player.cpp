@@ -1,19 +1,48 @@
 ﻿#include "Player.h"
 #include <assert.h>
 #include <cmath>
+#include <numbers>
+#include "imgui.h"
 
-void Player::Initialize(Model* model) {
+void Player::Initialize(Model* modelBody, Model* modelHead, Model* modelL_arm, Model* modelR_arm) {
 
-	assert(model);
-	model_ = model;
+	assert(modelBody);
+	assert(modelHead);
+	assert(modelL_arm);
+	assert(modelR_arm);
+
+	modelBody_ = modelBody;
+	modelHead_ = modelHead;
+	modelL_arm_ = modelL_arm;
+	modelR_arm_ = modelR_arm;
 	
 	input_ = Input::GetInstance();
+	InitializeFloatingGimmick();
 
-	worldTransform_.Initialize();
-	worldTransform_.scale_ = {0.8f, 0.8f, 0.8f};
-	worldTransform_.translation_ = {0.0f, 5.0f, 0.0f};
 	rotate = {};
 
+	worldTransformBase_.Initialize();
+	worldTransformBody_.Initialize();
+	worldTransformHead_.Initialize();
+	worldTransformL_arm_.Initialize();
+	worldTransformR_arm_.Initialize();
+
+	worldTransformBase_.translation_ = {0.0f, 0.0f, 0.0f};
+	worldTransformBody_.translation_ = {0.0f, 0.0f, 0.0f};
+	worldTransformHead_.translation_ = {0.0f, 6.0f, 0.0f};
+	worldTransformL_arm_.translation_ = {-2.0f, 5.5f, 0.0f};
+	worldTransformR_arm_.translation_ = {2.0f, 5.5f, 0.0f};
+
+	worldTransformBody_.parent_ = &GetWorldTransform();
+	worldTransformHead_.parent_ = &GetWorldTransformBody();
+	worldTransformL_arm_.parent_ = &GetWorldTransformBody();
+	worldTransformR_arm_.parent_ = &GetWorldTransformBody();
+	
+	worldTransformBase_.UpdateMatrix();
+	worldTransformBody_.UpdateMatrix();
+	worldTransformHead_.UpdateMatrix();
+	worldTransformL_arm_.UpdateMatrix();
+	worldTransformR_arm_.UpdateMatrix();
 }
 
 void Player::Update() {
@@ -36,13 +65,13 @@ void Player::Update() {
 
 		move = TransformNormal(move, rotateMatrix);
 
-		worldTransform_.translation_ += move;
+		worldTransformBase_.translation_ += move;
 
 		if (move != zeroVector) {
 			rotate = move;
 		}
 
-		worldTransform_.rotation_.y = std::atan2(rotate.x, rotate.z);
+		worldTransformBase_.rotation_.y = std::atan2(rotate.x, rotate.z);
 
 	} else {
 		if (input_->PushKey(DIK_W)) {
@@ -62,21 +91,59 @@ void Player::Update() {
 
 		move = TransformNormal(move, MakeRotateYMatrix(viewProjection_->rotation_.y));
 
-		worldTransform_.translation_ += move;
+		worldTransformBase_.translation_ += move;
 
 		if (move != zeroVector) {
 			rotate = move;
 		}
 
-		worldTransform_.rotation_.y = std::atan2(rotate.x, rotate.z);
+		worldTransformBase_.rotation_.y = std::atan2(rotate.x, rotate.z);
 
 	}
 
-	worldTransform_.UpdateMatrix();
+	UpdateFloatingGimmick();
+
+
+	worldTransformBase_.UpdateMatrix();
+	worldTransformBody_.UpdateMatrix();
+	worldTransformHead_.UpdateMatrix();
+	worldTransformL_arm_.UpdateMatrix();
+	worldTransformR_arm_.UpdateMatrix();
 }
 
 void Player::Draw(ViewProjection& viewProjection) {
 
-	model_->Draw(worldTransform_, viewProjection);
+	modelBody_->Draw(worldTransformBody_, viewProjection);
+	modelHead_->Draw(worldTransformHead_, viewProjection);
+	modelL_arm_->Draw(worldTransformL_arm_, viewProjection);
+	modelR_arm_->Draw(worldTransformR_arm_, viewProjection);
+
 }
 
+void Player::InitializeFloatingGimmick() {
+
+	floatingParameter_ = 0.0f;
+
+}
+
+void Player::UpdateFloatingGimmick() {
+	//浮遊移動のサイクル<frame>
+	int cycle = 60;
+	//1フレームでのパラメータ加算値
+	const float step = 2.0f * (float)std::numbers::pi / cycle;
+
+	floatingParameter_ += step;
+
+	floatingParameter_ = std::fmod(floatingParameter_, 2.0f * (float)std::numbers::pi);
+
+	//浮遊の振幅
+	float amplitude = 0.5f;
+	
+	worldTransformBody_.translation_.y = std::sinf(floatingParameter_) * amplitude;
+
+	amplitude = 0.3f;
+
+	worldTransformL_arm_.rotation_.y = std::sinf(floatingParameter_) * amplitude;
+	worldTransformR_arm_.rotation_.y = std::sinf(floatingParameter_) * amplitude;
+
+}

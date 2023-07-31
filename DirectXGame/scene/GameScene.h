@@ -60,9 +60,13 @@ private: // メンバ変数
 
 	ViewProjection viewProjection_;
 
-	std::unique_ptr<DebugCamera> debugCamera_;
-	std::unique_ptr<Model> playerModel_;
+	std::unique_ptr<Model> modelPlayerBody_;
+	std::unique_ptr<Model> modelPlayerHead_;
+	std::unique_ptr<Model> modelPlayerL_arm_;
+	std::unique_ptr<Model> modelPlayerR_arm_;
 	std::unique_ptr<Player> player_;
+
+	std::unique_ptr<DebugCamera> debugCamera_;
 	std::unique_ptr<Skydome> skydome_;
 	std::unique_ptr<Model> skydomeModel_;
 	std::unique_ptr<Ground> ground_;

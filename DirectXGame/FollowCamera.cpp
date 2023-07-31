@@ -40,7 +40,7 @@ void FollowCamera::Update() {
 
 	if (target_) {
 	
-		Vec3 offset = {0.0f, 0.0f, -30.0f};
+		Vec3 offset = {0.0f, 5.0f, -30.0f};
 
 		Matrix44 rotateMatrix = MakeRotateXMatrix(viewProjection_.rotation_.x) *
 		                        MakeRotateYMatrix(viewProjection_.rotation_.y) *
@@ -56,9 +56,14 @@ void FollowCamera::Update() {
 
 	}
 
+#ifdef _DEBUG
 	ImGui::Begin("FollowCamera");
 	ImGui::DragFloat3("Translation", &viewProjection_.translation_.x, 0.01f);
 	ImGui::End();
+
+#endif // _DEBUG
+
+	
 	
 	viewProjection_.UpdateViewMatrix();
 
