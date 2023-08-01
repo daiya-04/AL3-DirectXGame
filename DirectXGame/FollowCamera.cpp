@@ -56,14 +56,6 @@ void FollowCamera::Update() {
 		}
 
 	}
-
-#ifdef _DEBUG
-	ImGui::Begin("FollowCamera");
-	ImGui::DragFloat3("Translation", &viewProjection_.translation_.x, 0.01f);
-	ImGui::End();
-
-#endif // _DEBUG
-
 	
 	
 	viewProjection_.UpdateViewMatrix();

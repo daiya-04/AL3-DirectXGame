@@ -4,13 +4,19 @@
 #include <numbers>
 #include "imgui.h"
 #include "Easing.h"
+#include "GlobalVariables.h"
 
 void Player::Initialize(const std::vector<Model*>& models) {
 
 	BaseCharacter::Initialize(models);
 	models_ = models;
 
-
+	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
+	const char* groupName = "Player";
+	GlobalVariables::GetInstance()->CreateGroup(groupName);
+	globalVariables->SetValue(groupName, "Test", 90);
+	//globalVariables->SetValue(groupName, "Test", 90.0f);
+	//globalVariables->SetValue(groupName, "Test", {1.0f,2.0f,3.0f});
 
 	/*modelBody_ = modelBody;
 	modelHead_ = modelHead;
