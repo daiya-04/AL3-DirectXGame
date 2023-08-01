@@ -3,6 +3,7 @@
 #include <cmath>
 #include <numbers>
 #include "imgui.h"
+#include "Easing.h"
 
 void Player::Initialize(const std::vector<Model*>& models) {
 
@@ -27,6 +28,8 @@ void Player::Initialize(const std::vector<Model*>& models) {
 	worldTransformL_arm_.Initialize();
 	worldTransformR_arm_.Initialize();
 
+	worldTransformWeapon_.Initialize();
+
 	worldTransformBase_.translation_ = {0.0f, 0.0f, 0.0f};
 	worldTransformBody_.translation_ = {0.0f, 0.0f, 0.0f};
 	worldTransformHead_.translation_ = {0.0f, 6.0f, 0.0f};
@@ -38,16 +41,96 @@ void Player::Initialize(const std::vector<Model*>& models) {
 	worldTransformL_arm_.parent_ = &GetWorldTransformBody();
 	worldTransformR_arm_.parent_ = &GetWorldTransformBody();
 
+	
+}
+
+void Player::Update() {
+
+	if (behaviorRequest_) {
+
+		behavior_ = behaviorRequest_.value();
+
+		switch (behavior_) {
+			case Behavior::kRoot:
+		    default:
+			    BehaviorRootInitialize();
+				break;
+			case Behavior::kAttack:
+			    BehaviorAttackInitialize();
+			    break;
+
+		}
+
+		behaviorRequest_ = std::nullopt;
+	}
+
+	BaseCharacter::Update();
+
+	switch (behavior_) {
+	    case Behavior::kRoot:
+	    default:
+		    BehaviorRootUpdate();
+	    	break;
+	    case Behavior::kAttack:
+		    BehaviorAttackUpdate();
+	    	break;
+	}
+
 	worldTransformBase_.UpdateMatrix();
 	worldTransformBody_.UpdateMatrix();
 	worldTransformHead_.UpdateMatrix();
 	worldTransformL_arm_.UpdateMatrix();
 	worldTransformR_arm_.UpdateMatrix();
+	worldTransformWeapon_.UpdateMatrix();
 }
 
-void Player::Update() {
+void Player::Draw(const ViewProjection& viewProjection) {
 
-	BaseCharacter::Update();
+	models_[0]->Draw(worldTransformBody_, viewProjection);
+	models_[1]->Draw(worldTransformHead_, viewProjection);
+	models_[2]->Draw(worldTransformL_arm_, viewProjection);
+	models_[3]->Draw(worldTransformR_arm_, viewProjection);
+	if (behavior_ == Behavior::kAttack) {
+		 models_[4]->Draw(worldTransformWeapon_, viewProjection);
+	}
+	
+
+}
+
+void Player::InitializeFloatingGimmick() {
+
+	floatingParameter_ = 0.0f;
+
+}
+
+void Player::UpdateFloatingGimmick() {
+	
+	//1フレームでのパラメータ加算値
+	const float step = 2.0f * (float)std::numbers::pi / (float)cycle;
+
+	floatingParameter_ += step;
+
+	floatingParameter_ = std::fmod(floatingParameter_, 2.0f * (float)std::numbers::pi);
+	
+	worldTransformBody_.translation_.y = std::sinf(floatingParameter_) * amplitude;
+
+	amplitude = 0.5f;
+
+	amplitude = 0.3f;
+
+	worldTransformL_arm_.rotation_.y = std::sinf(floatingParameter_) * amplitude;
+	worldTransformR_arm_.rotation_.y = std::sinf(floatingParameter_) * amplitude;
+
+}
+
+void Player::BehaviorRootInitialize() {
+
+	amplitude = 0.5f;
+	cycle = 60;
+
+}
+
+void Player::BehaviorRootUpdate() {
 	XINPUT_STATE joyState;
 
 	Vec3 move{};
@@ -55,17 +138,16 @@ void Player::Update() {
 	Vec3 zeroVector{};
 
 	if (Input::GetInstance()->GetJoystickState(0, joyState)) {
-	
-		
+
+		if (joyState.Gamepad.wButtons) {
+			    behaviorRequest_ = Behavior::kAttack;
+			    return;
+		}
 
 		move = {(float)joyState.Gamepad.sThumbLX, 0.0f, (float)joyState.Gamepad.sThumbLY};
 		move = move / SHRT_MAX * speed;
 
-		Matrix44 rotateMatrix = MakeRotateXMatrix(viewProjection_->rotation_.x) *
-		                        MakeRotateYMatrix(viewProjection_->rotation_.y) *
-		                        MakeRotateZMatrix(viewProjection_->rotation_.z);
-
-		move = TransformNormal(move, rotateMatrix);
+		move = TransformNormal(move, MakeRotateYMatrix(viewProjection_->rotation_.y));
 
 		worldTransformBase_.translation_ += move;
 
@@ -89,7 +171,10 @@ void Player::Update() {
 			move.x -= speed;
 		}
 
-		
+		if (input_->PushKey(DIK_SPACE)) {
+			behaviorRequest_ = Behavior::kAttack;
+			return;
+		}
 
 		move = TransformNormal(move, MakeRotateYMatrix(viewProjection_->rotation_.y));
 
@@ -100,52 +185,33 @@ void Player::Update() {
 		}
 
 		worldTransformBase_.rotation_.y = std::atan2(rotate.x, rotate.z);
-
 	}
 
 	UpdateFloatingGimmick();
-
-
-	worldTransformBase_.UpdateMatrix();
-	worldTransformBody_.UpdateMatrix();
-	worldTransformHead_.UpdateMatrix();
-	worldTransformL_arm_.UpdateMatrix();
-	worldTransformR_arm_.UpdateMatrix();
 }
 
-void Player::Draw(const ViewProjection& viewProjection) {
+void Player::BehaviorAttackInitialize() {
 
-	models_[0]->Draw(worldTransformBody_, viewProjection);
-	models_[1]->Draw(worldTransformHead_, viewProjection);
-	models_[2]->Draw(worldTransformL_arm_, viewProjection);
-	models_[3]->Draw(worldTransformR_arm_, viewProjection);
+	num = 0.0f;
+	worldTransformWeapon_ = worldTransformBase_;
+	worldTransformWeapon_.translation_.y = 3.0f;
+	count = 0;
 
 }
 
-void Player::InitializeFloatingGimmick() {
+void Player::BehaviorAttackUpdate() {
 
-	floatingParameter_ = 0.0f;
+	num += 0.05f;
+	float T = Easing::easeInSine(num);
+	worldTransformWeapon_.rotation_.x =
+	    Lerp(T, 0.0f, (float)std::numbers::pi / 2.0f);
 
-}
+	if (num >= 1.0f) {
+		num = 1.0f;
+		count++;
+	}
 
-void Player::UpdateFloatingGimmick() {
-	//浮遊移動のサイクル<frame>
-	int cycle = 60;
-	//1フレームでのパラメータ加算値
-	const float step = 2.0f * (float)std::numbers::pi / cycle;
-
-	floatingParameter_ += step;
-
-	floatingParameter_ = std::fmod(floatingParameter_, 2.0f * (float)std::numbers::pi);
-
-	//浮遊の振幅
-	float amplitude = 0.5f;
-	
-	worldTransformBody_.translation_.y = std::sinf(floatingParameter_) * amplitude;
-
-	amplitude = 0.3f;
-
-	worldTransformL_arm_.rotation_.y = std::sinf(floatingParameter_) * amplitude;
-	worldTransformR_arm_.rotation_.y = std::sinf(floatingParameter_) * amplitude;
-
+	if (count == 15) {
+		behaviorRequest_ = Behavior::kRoot;
+	}
 }

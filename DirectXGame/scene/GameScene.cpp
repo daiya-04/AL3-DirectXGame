@@ -25,6 +25,8 @@ void GameScene::Initialize() {
 	modelPlayerL_arm_.reset(Model::CreateFromOBJ("float_L_Arm", true));
 	modelPlayerR_arm_.reset(Model::CreateFromOBJ("float_R_Arm", true));
 
+	modelWeapon_.reset(Model::CreateFromOBJ("Stamp", true));
+
 	modelEnemyBody_.reset(Model::CreateFromOBJ("EnemyBody", true));
 	modelEnemyHead_.reset(Model::CreateFromOBJ("EnemyHead", true));
 
@@ -34,7 +36,7 @@ void GameScene::Initialize() {
 	player_ = std::make_unique<Player>();
 	std::vector<Model*> playerModels = {
 	    modelPlayerBody_.get(), modelPlayerHead_.get(), modelPlayerL_arm_.get(),
-	    modelPlayerR_arm_.get()};
+	    modelPlayerR_arm_.get(),modelWeapon_.get()};
 
 	player_->Initialize(playerModels);
 

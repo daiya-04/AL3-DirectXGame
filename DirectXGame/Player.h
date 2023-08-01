@@ -4,9 +4,17 @@
 #include "ViewProjection.h"
 #include "Input.h"
 #include "BaseCharacter.h"
+#include <optional>
+
+
 
 class Player : public BaseCharacter{
 private:
+
+	enum class Behavior {
+		kRoot,   // 通常状態
+		kAttack, // 攻撃中
+	};
 
 	//ワールド変換座標
 	WorldTransform worldTransformBase_;
@@ -14,6 +22,8 @@ private:
 	WorldTransform worldTransformHead_;
 	WorldTransform worldTransformL_arm_;
 	WorldTransform worldTransformR_arm_;
+
+	WorldTransform worldTransformWeapon_;
 
 	//モデル
 	//Model* modelBody_ = nullptr;
@@ -26,9 +36,22 @@ private:
 
 	const ViewProjection* viewProjection_ = nullptr;
 
+	Behavior behavior_ = Behavior::kRoot;
+
+	std::optional<Behavior> behaviorRequest_ = std::nullopt;
+
 	Vec3 rotate;
 
 	float floatingParameter_ = 0.0f;
+
+	float num = 0.0f;
+
+	// 浮遊の振幅
+	float amplitude = 0.5f;
+	// 浮遊移動のサイクル<frame>
+	int cycle = 60;
+
+	int count = 0;
 
 public:
 
@@ -49,8 +72,18 @@ public:
 	/// 浮遊ギミック初期化
 	/// </summary>
 	void InitializeFloatingGimmick();
-
+	/// <summary>
+	/// 浮遊ギミック更新
+	/// </summary>
 	void UpdateFloatingGimmick();
+	//通常行動初期化
+	void BehaviorRootInitialize();
+	//攻撃行動初期化
+	void BehaviorAttackInitialize();
+	//通常行動更新
+	void BehaviorRootUpdate();
+	//攻撃行動更新
+	void BehaviorAttackUpdate();
 
 	void SetViewProjection(const ViewProjection* viewProjection) { viewProjection_ = viewProjection; }
 
