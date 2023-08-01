@@ -3,8 +3,9 @@
 #include "WorldTransform.h"
 #include "ViewProjection.h"
 #include "Input.h"
+#include "BaseCharacter.h"
 
-class Player {
+class Player : public BaseCharacter{
 private:
 
 	//ワールド変換座標
@@ -15,10 +16,11 @@ private:
 	WorldTransform worldTransformR_arm_;
 
 	//モデル
-	Model* modelBody_ = nullptr;
-	Model* modelHead_ = nullptr;
-	Model* modelL_arm_ = nullptr;
-	Model* modelR_arm_ = nullptr;
+	//Model* modelBody_ = nullptr;
+	//Model* modelHead_ = nullptr;
+	//Model* modelL_arm_ = nullptr;
+	//Model* modelR_arm_ = nullptr;
+	std::vector<Model*> models_ = {nullptr};
 
 	Input* input_ = nullptr;
 
@@ -33,16 +35,16 @@ public:
 	/// <summary>
 	/// 初期化
 	/// </summary>
-	void Initialize(Model* modelBody,Model* modelHead,Model* modelL_arm,Model* modelR_arm);
+	void Initialize(const std::vector<Model*>& models)override;
 	/// <summary>
 	/// 更新
 	/// </summary>
-	void Update();
+	void Update()override;
 	/// <summary>
 	/// 描画
 	/// </summary>
 	/// <param name="vewProjection">ビュープロジェクション (参照渡し)</param>
-	void Draw(ViewProjection& vewProjection);
+	void Draw(const ViewProjection& vewProjection)override;
 	/// <summary>
 	/// 浮遊ギミック初期化
 	/// </summary>

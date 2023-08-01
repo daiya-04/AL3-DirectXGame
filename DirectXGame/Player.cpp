@@ -4,17 +4,17 @@
 #include <numbers>
 #include "imgui.h"
 
-void Player::Initialize(Model* modelBody, Model* modelHead, Model* modelL_arm, Model* modelR_arm) {
+void Player::Initialize(const std::vector<Model*>& models) {
 
-	assert(modelBody);
-	assert(modelHead);
-	assert(modelL_arm);
-	assert(modelR_arm);
+	BaseCharacter::Initialize(models);
+	models_ = models;
 
-	modelBody_ = modelBody;
+
+
+	/*modelBody_ = modelBody;
 	modelHead_ = modelHead;
 	modelL_arm_ = modelL_arm;
-	modelR_arm_ = modelR_arm;
+	modelR_arm_ = modelR_arm;*/
 	
 	input_ = Input::GetInstance();
 	InitializeFloatingGimmick();
@@ -37,7 +37,7 @@ void Player::Initialize(Model* modelBody, Model* modelHead, Model* modelL_arm, M
 	worldTransformHead_.parent_ = &GetWorldTransformBody();
 	worldTransformL_arm_.parent_ = &GetWorldTransformBody();
 	worldTransformR_arm_.parent_ = &GetWorldTransformBody();
-	
+
 	worldTransformBase_.UpdateMatrix();
 	worldTransformBody_.UpdateMatrix();
 	worldTransformHead_.UpdateMatrix();
@@ -46,6 +46,8 @@ void Player::Initialize(Model* modelBody, Model* modelHead, Model* modelL_arm, M
 }
 
 void Player::Update() {
+
+	BaseCharacter::Update();
 	XINPUT_STATE joyState;
 
 	Vec3 move{};
@@ -111,12 +113,12 @@ void Player::Update() {
 	worldTransformR_arm_.UpdateMatrix();
 }
 
-void Player::Draw(ViewProjection& viewProjection) {
+void Player::Draw(const ViewProjection& viewProjection) {
 
-	modelBody_->Draw(worldTransformBody_, viewProjection);
-	modelHead_->Draw(worldTransformHead_, viewProjection);
-	modelL_arm_->Draw(worldTransformL_arm_, viewProjection);
-	modelR_arm_->Draw(worldTransformR_arm_, viewProjection);
+	models_[0]->Draw(worldTransformBody_, viewProjection);
+	models_[1]->Draw(worldTransformHead_, viewProjection);
+	models_[2]->Draw(worldTransformL_arm_, viewProjection);
+	models_[3]->Draw(worldTransformR_arm_, viewProjection);
 
 }
 
