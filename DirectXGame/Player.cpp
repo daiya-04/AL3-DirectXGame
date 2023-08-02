@@ -6,6 +6,7 @@
 #include "Easing.h"
 #include "GlobalVariables.h"
 
+
 void Player::Initialize(const std::vector<Model*>& models) {
 
 	BaseCharacter::Initialize(models);
@@ -145,7 +146,7 @@ void Player::BehaviorRootUpdate() {
 
 	if (Input::GetInstance()->GetJoystickState(0, joyState)) {
 
-		if (joyState.Gamepad.wButtons) {
+		if (joyState.Gamepad.wButtons & XINPUT_GAMEPAD_X) {
 			    behaviorRequest_ = Behavior::kAttack;
 			    return;
 		}

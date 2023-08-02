@@ -7,13 +7,20 @@
 class GlobalVariables {
 private:
 
+	//項目
 	struct Item {
+		//項目の値
 		std::variant<int32_t, float, Vec3> value;
 	};
+	//グループ
 	struct Group {
 		std::map<std::string, Item> items;
 	};
+	//全データ
 	std::map<std::string, Group> datas_;
+
+	//グローバル変数の保存先のファイルパス
+	const std::string kDirectoryPath = "Resources/GlobalVariables/";
 
 
 public:
@@ -32,7 +39,11 @@ public:
 	void SetValue(const std::string& groupName, const std::string& key, float value);
 	//値のセット(Vec3)
 	void SetValue(const std::string& groupName, const std::string& key, const Vec3& value);
-	
+	/// <summary>
+	/// ファイルの書き出し
+	/// </summary>
+	/// <param name="groupName">グループ</param>
+	void SaveFile(const std::string& groupName);
 
 public:
 
