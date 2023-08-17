@@ -15,7 +15,7 @@ void Player::Initialize(const std::vector<Model*>& models) {
 	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
 	const char* groupName = "Player";
 	GlobalVariables::GetInstance()->CreateGroup(groupName);
-	globalVariables->SetValue(groupName, "Test", 90);
+	
 	//globalVariables->SetValue(groupName, "Test", 90.0f);
 	//globalVariables->SetValue(groupName, "Test", {1.0f,2.0f,3.0f});
 
@@ -43,6 +43,12 @@ void Player::Initialize(const std::vector<Model*>& models) {
 	worldTransformL_arm_.translation_ = {-2.0f, 5.5f, 0.0f};
 	worldTransformR_arm_.translation_ = {2.0f, 5.5f, 0.0f};
 
+	globalVariables->AddItem(groupName, "Head Translation", worldTransformHead_.translation_);
+	globalVariables->AddItem(groupName, "LArm Translation", worldTransformL_arm_.translation_);
+	globalVariables->AddItem(groupName, "RArm Translation", worldTransformR_arm_.translation_);
+	globalVariables->AddItem(groupName, "floatingCycle", cycle);
+	globalVariables->AddItem(groupName, "floatingAmplitude", amplitude);
+
 	worldTransformBody_.parent_ = &GetWorldTransform();
 	worldTransformHead_.parent_ = &GetWorldTransformBody();
 	worldTransformL_arm_.parent_ = &GetWorldTransformBody();
@@ -52,6 +58,8 @@ void Player::Initialize(const std::vector<Model*>& models) {
 }
 
 void Player::Update() {
+
+	ApplyGlobalVariables();
 
 	if (behaviorRequest_) {
 
@@ -82,6 +90,8 @@ void Player::Update() {
 		    BehaviorAttackUpdate();
 	    	break;
 	}
+
+	
 
 	worldTransformBase_.UpdateMatrix();
 	worldTransformBody_.UpdateMatrix();
@@ -221,4 +231,14 @@ void Player::BehaviorAttackUpdate() {
 	if (count == 15) {
 		behaviorRequest_ = Behavior::kRoot;
 	}
+}
+
+void Player::ApplyGlobalVariables() {
+
+	GlobalVariables* globalVariables = GlobalVariables::GetInstance();
+	const char* groupName = "Player";
+	worldTransformHead_.translation_ = globalVariables->GetVec3Value(groupName, "Head Translation");
+	worldTransformL_arm_.translation_ = globalVariables->GetVec3Value(groupName, "LArm Translation");
+	worldTransformR_arm_.translation_ = globalVariables->GetVec3Value(groupName, "RArm Translation");
+
 }

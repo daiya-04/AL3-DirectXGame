@@ -1,5 +1,21 @@
 {
     "Player": {
-        "Test": 47
+        "Head Translation": [
+            -5.199999809265137,
+            6.0,
+            0.0
+        ],
+        "LArm Translation": [
+            4.800000190734863,
+            5.5,
+            0.0
+        ],
+        "RArm Translation": [
+            -4.0,
+            3.0999999046325684,
+            0.0
+        ],
+        "floatingAmplitude": 0.5,
+        "floatingCycle": 60
     }
 }

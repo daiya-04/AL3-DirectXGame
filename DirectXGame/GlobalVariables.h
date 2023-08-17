@@ -44,6 +44,26 @@ public:
 	/// </summary>
 	/// <param name="groupName">グループ</param>
 	void SaveFile(const std::string& groupName);
+	/// <summary>
+	/// ディレクトリの全ファイル読み込み
+	/// </summary>
+	void LoadFiles();
+	/// <summary>
+	/// ファイルから読み込む
+	/// </summary>
+	/// <param name="groupName">グループ</param>
+	void LoadFile(const std::string& groupName);
+	//項目の追加(int)
+	void AddItem(const std::string& groupName, const std::string& key, int32_t value);
+	//項目の追加(float)
+	void AddItem(const std::string& groupName, const std::string& key, float value);
+	//項目の追加(Vec3)
+	void AddItem(const std::string& groupName, const std::string& key, const Vec3& value);
+
+	//値の取得
+	int32_t GetIntValue(const std::string& groupName, const std::string& key) const;
+	float GetFloatValue(const std::string& groupName, const std::string& key) const;
+	Vec3 GetVec3Value(const std::string& groupName, const std::string& key) const;
 
 public:
 

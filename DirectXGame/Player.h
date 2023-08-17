@@ -84,6 +84,8 @@ public:
 	void BehaviorRootUpdate();
 	//攻撃行動更新
 	void BehaviorAttackUpdate();
+	//調整項目の適用
+	void ApplyGlobalVariables();
 
 	void SetViewProjection(const ViewProjection* viewProjection) { viewProjection_ = viewProjection; }
 
